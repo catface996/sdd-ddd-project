@@ -1,0 +1,341 @@
+# 实施计划
+
+本文档定义了 order-service 多模块 Maven 工程的实施任务列表。每个任务都是可执行的代码实现步骤，按照依赖关系组织，确保增量式开发。
+
+## 任务列表
+
+- [ ] 1. 创建项目根结构和父 POM 配置
+  - 在项目根目录创建 pom.xml，配置 groupId 为 "com.catface.com"，artifactId 为 "order-service"
+  - 配置 packaging 为 "pom"，Java 版本为 21
+  - 在 dependencyManagement 中声明 Spring Boot 3.3.5 和 Spring Cloud 2024.0.0 BOM
+  - 在 dependencyManagement 中声明 MyBatis-Plus 3.5.9、Jedis 5.2.0、Lombok 1.18.34、JUnit 5.10.3
+  - 配置 maven-compiler-plugin，设置 source 和 target 为 21
+  - 在 modules 节中声明 5 个根级别模块：common、bootstrap、traffic、application、domain、infrastructure
+  - _需求: 1.1, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 13.1, 13.2, 13.3, 13.4_
+  - **验证标准**：
+    - 文件 pom.xml 存在于项目根目录
+    - pom.xml 中 groupId 为 "com.catface.com"
+    - pom.xml 中 artifactId 为 "order-service"
+    - pom.xml 中 packaging 为 "pom"
+    - dependencyManagement 包含 spring-boot-dependencies 3.3.5
+    - dependencyManagement 包含 spring-cloud-dependencies 2024.0.0
+    - maven-compiler-plugin 的 source 和 target 为 21
+    - modules 节包含且仅包含 5 个模块声明
+    - 执行 `mvn validate` 命令成功
+
+- [ ] 2. 创建 common 通用模块
+  - 创建 common/pom.xml，packaging 为 "jar"
+  - 创建基础包结构 src/main/java/com/catface/com/orderservice/common
+  - 创建子包：utils、exceptions、constants、dto
+  - _需求: 1.1, 11.1, 11.2_
+  - **验证标准**：
+    - 文件 common/pom.xml 存在
+    - common/pom.xml 中 packaging 为 "jar"
+    - 目录 common/src/main/java/com/catface/com/orderservice/common 存在
+    - 子目录 utils、exceptions、constants、dto 都存在
+    - 执行 `mvn compile -pl common` 命令成功
+
+- [ ] 3. 创建通用异常体系
+  - 在 common/exceptions 包下创建 BaseException 类，继承 RuntimeException
+  - 创建 BusinessException 类，继承 BaseException，用于业务逻辑异常
+  - 创建 SystemException 类，继承 BaseException，用于系统级异常
+  - 创建 ValidationException 类，继承 BaseException，用于参数验证异常
+  - 创建 InfrastructureException 类，继承 BaseException，用于基础设施异常
+  - 每个异常类包含错误码、错误消息字段和相应的构造方法
+  - _需求: 15.1, 15.2, 15.3, 15.4, 15.5_
+  - **验证标准**：
+    - 文件 BaseException.java 存在于 common/src/main/java/com/catface/com/orderservice/common/exceptions/
+    - BaseException 继承自 RuntimeException
+    - 文件 BusinessException.java、SystemException.java、ValidationException.java、InfrastructureException.java 都存在
+    - 所有异常类都继承自 BaseException
+    - 每个异常类包含 errorCode 和 message 字段
+    - 每个异常类至少有一个构造方法
+    - 执行 `mvn compile -pl common` 命令成功且无编译错误
+
+- [ ] 4. 创建 infrastructure 基础设施层父模块
+  - 创建 infrastructure/pom.xml，packaging 为 "pom"
+  - 配置 parent 引用到根 pom
+  - 在 modules 节中声明 3 个子模块：repository、cache、mq
+  - 不声明任何依赖
+  - _需求: 1.2, 14.1, 14.2, 14.3, 14.4, 14.5_
+  - **验证标准**：
+    - 文件 infrastructure/pom.xml 存在
+    - packaging 为 "pom"
+    - parent 的 groupId 为 "com.catface.com"，artifactId 为 "order-service"
+    - modules 节包含且仅包含 3 个模块：repository、cache、mq
+    - dependencies 节不存在或为空
+    - 执行 `mvn validate -pl infrastructure` 命令成功
+
+- [ ] 5. 创建 repository 仓储模块结构
+  - 创建 infrastructure/repository/pom.xml，packaging 为 "pom"
+  - 在 modules 节中声明：repository-api、mysql-impl
+  - 创建 infrastructure/repository/repository-api/pom.xml
+  - repository-api 仅依赖 common 模块
+  - 创建 repository-api 基础包结构和 repository 子包
+  - _需求: 1.3, 6.1, 6.2_
+  - **验证标准**：
+    - 文件 infrastructure/repository/pom.xml 存在，packaging 为 "pom"
+    - modules 节包含 repository-api 和 mysql-impl
+    - 文件 infrastructure/repository/repository-api/pom.xml 存在
+    - repository-api/pom.xml 仅依赖 common（groupId: com.catface.com）
+    - 目录 infrastructure/repository/repository-api/src/main/java/com/catface/com/orderservice/infrastructure/repository 存在
+    - 执行 `mvn compile -pl :repository-api` 命令成功
+
+- [ ] 6. 创建 MySQL 仓储实现模块
+  - 创建 infrastructure/repository/mysql-impl/pom.xml
+  - 声明对 repository-api 和 common 的依赖
+  - 添加 mybatis-plus-boot-starter 依赖
+  - 添加 mysql-connector-j 依赖，scope 为 runtime
+  - 创建基础包结构：mapper、entity、impl
+  - _需求: 6.3, 6.4, 6.5_
+  - **验证标准**：
+    - 文件 infrastructure/repository/mysql-impl/pom.xml 存在
+    - 依赖中包含 repository-api 和 common（groupId: com.catface.com）
+    - 依赖中包含 mybatis-plus-boot-starter
+    - 依赖中包含 mysql-connector-j，scope 为 runtime
+    - 目录 mapper、entity、impl 都存在于基础包路径下
+    - 执行 `mvn compile -pl :mysql-impl` 命令成功
+
+- [ ] 7. 创建 cache 缓存模块结构
+  - 创建 infrastructure/cache/pom.xml，packaging 为 "pom"
+  - 在 modules 节中声明：cache-api、redis-impl
+  - 创建 infrastructure/cache/cache-api/pom.xml
+  - cache-api 仅依赖 common 模块，不包含第三方缓存库依赖
+  - 创建 cache-api 基础包结构
+  - _需求: 1.4, 7.1, 7.2, 7.5_
+  - **验证标准**：
+    - 文件 infrastructure/cache/pom.xml 存在，packaging 为 "pom"
+    - modules 节包含 cache-api 和 redis-impl
+    - 文件 infrastructure/cache/cache-api/pom.xml 存在
+    - cache-api/pom.xml 仅依赖 common，不包含 jedis 或其他缓存库依赖
+    - 目录 infrastructure/cache/cache-api/src/main/java/com/catface/com/orderservice/infrastructure/cache 存在
+    - 执行 `mvn compile -pl :cache-api` 命令成功
+
+- [ ] 8. 创建 Redis 缓存实现模块
+  - 创建 infrastructure/cache/redis-impl/pom.xml
+  - 声明对 cache-api 和 common 的依赖
+  - 添加 jedis 依赖
+  - 创建基础包结构：config、impl
+  - _需求: 7.3, 7.4_
+  - **验证标准**：
+    - 文件 infrastructure/cache/redis-impl/pom.xml 存在
+    - 依赖中包含 cache-api 和 common
+    - 依赖中包含 jedis
+    - 目录 config、impl 都存在于基础包路径下
+    - 执行 `mvn compile -pl :redis-impl` 命令成功
+
+- [ ] 9. 创建 mq 消息队列模块结构
+  - 创建 infrastructure/mq/pom.xml，packaging 为 "pom"
+  - 在 modules 节中声明：mq-api、sqs-impl
+  - 创建 infrastructure/mq/mq-api/pom.xml
+  - mq-api 仅依赖 common 模块，不包含 AWS SDK 依赖
+  - 创建 mq-api 基础包结构
+  - _需求: 1.5, 8.1, 8.2, 8.5_
+  - **验证标准**：
+    - 文件 infrastructure/mq/pom.xml 存在，packaging 为 "pom"
+    - modules 节包含 mq-api 和 sqs-impl
+    - 文件 infrastructure/mq/mq-api/pom.xml 存在
+    - mq-api/pom.xml 仅依赖 common，不包含 aws-java-sdk-sqs 依赖
+    - 目录 infrastructure/mq/mq-api/src/main/java/com/catface/com/orderservice/infrastructure/mq 存在
+    - 执行 `mvn compile -pl :mq-api` 命令成功
+
+- [ ] 10. 创建 SQS 消息队列实现模块
+  - 创建 infrastructure/mq/sqs-impl/pom.xml
+  - 声明对 mq-api 和 common 的依赖
+  - 添加 aws-java-sdk-sqs 依赖，版本 1.12.x
+  - 创建基础包结构：config、impl
+  - _需求: 8.3, 8.4_
+  - **验证标准**：
+    - 文件 infrastructure/mq/sqs-impl/pom.xml 存在
+    - 依赖中包含 mq-api 和 common
+    - 依赖中包含 aws-java-sdk-sqs，版本以 1.12 开头
+    - 目录 config、impl 都存在于基础包路径下
+    - 执行 `mvn compile -pl :sqs-impl` 命令成功
+
+- [ ] 11. 创建 domain 领域层模块结构
+  - 创建 domain/pom.xml，packaging 为 "pom"
+  - 在 modules 节中声明：domain-api、domain-impl
+  - 创建 domain/domain-api/pom.xml
+  - domain-api 仅依赖 common 模块，不包含任何基础设施依赖
+  - 创建基础包结构：model、aggregate、entity、valueobject、repository
+  - _需求: 1.2, 5.1, 5.2, 5.5, 11.1, 11.5_
+  - **验证标准**：
+    - 文件 domain/pom.xml 存在，packaging 为 "pom"
+    - modules 节包含 domain-api 和 domain-impl
+    - 文件 domain/domain-api/pom.xml 存在
+    - domain-api/pom.xml 仅依赖 common，不包含 repository-api、cache-api、mq-api 依赖
+    - 目录 model、aggregate、entity、valueobject、repository 都存在于基础包路径下
+    - 执行 `mvn compile -pl :domain-api` 命令成功
+
+- [ ] 12. 创建 domain-impl 领域实现模块
+  - 创建 domain/domain-impl/pom.xml
+  - 声明对 domain-api、repository-api、cache-api、mq-api、common 的依赖
+  - 不包含对 mysql-impl、redis-impl、sqs-impl 的依赖
+  - 创建基础包结构
+  - _需求: 5.3, 5.4_
+  - **验证标准**：
+    - 文件 domain/domain-impl/pom.xml 存在
+    - 依赖中包含 domain-api、repository-api、cache-api、mq-api、common
+    - 依赖中不包含 mysql-impl、redis-impl、sqs-impl
+    - 目录 domain/domain-impl/src/main/java/com/catface/com/orderservice/domain 存在
+    - 执行 `mvn compile -pl :domain-impl` 命令成功
+
+- [ ] 13. 创建 application 应用层模块结构
+  - 创建 application/pom.xml，packaging 为 "pom"
+  - 在 modules 节中声明：application-api、application-impl
+  - 创建 application/application-api/pom.xml
+  - application-api 仅依赖 common 模块，不包含 Spring Boot starter 依赖
+  - 创建基础包结构：service、dto、command、query
+  - _需求: 1.2, 4.1, 4.2, 4.5, 11.1, 11.4_
+  - **验证标准**：
+    - 文件 application/pom.xml 存在，packaging 为 "pom"
+    - modules 节包含 application-api 和 application-impl
+    - 文件 application/application-api/pom.xml 存在
+    - application-api/pom.xml 仅依赖 common，不包含 spring-boot-starter 依赖
+    - 目录 service、dto、command、query 都存在于基础包路径下
+    - 执行 `mvn compile -pl :application-api` 命令成功
+
+- [ ] 14. 创建 application-impl 应用实现模块
+  - 创建 application/application-impl/pom.xml
+  - 声明对 application-api、domain-api、common 的依赖
+  - 不包含对 mysql-impl、redis-impl、sqs-impl 的依赖
+  - 创建基础包结构
+  - _需求: 4.3, 4.4_
+  - **验证标准**：
+    - 文件 application/application-impl/pom.xml 存在
+    - 依赖中包含 application-api、domain-api、common
+    - 依赖中不包含 mysql-impl、redis-impl、sqs-impl
+    - 目录 application/application-impl/src/main/java/com/catface/com/orderservice/application 存在
+    - 执行 `mvn compile -pl :application-impl` 命令成功
+
+- [ ] 15. 创建 traffic 接口层父模块
+  - 创建 traffic/pom.xml，packaging 为 "pom"
+  - 在 modules 节中声明：http、consumer
+  - _需求: 1.2, 3.1_
+  - **验证标准**：
+    - 文件 traffic/pom.xml 存在，packaging 为 "pom"
+    - modules 节包含 http 和 consumer
+    - 执行 `mvn validate -pl traffic` 命令成功
+
+- [ ] 16. 创建 HTTP 接口模块
+  - 创建 traffic/http/pom.xml
+  - 声明对 application-api 和 common 的依赖
+  - 添加 spring-boot-starter-web 和 spring-boot-starter-validation 依赖
+  - 不包含任何基础设施实现依赖（mysql-impl、redis-impl、sqs-impl）
+  - 创建基础包结构：controller、converter
+  - _需求: 3.2, 3.4, 3.5, 11.1, 11.3_
+  - **验证标准**：
+    - 文件 traffic/http/pom.xml 存在
+    - 依赖中包含 application-api、common
+    - 依赖中包含 spring-boot-starter-web 和 spring-boot-starter-validation
+    - 依赖中不包含 mysql-impl、redis-impl、sqs-impl
+    - 目录 controller、converter 都存在于基础包路径下
+    - 执行 `mvn compile -pl :http` 命令成功
+
+- [ ] 17. 创建全局异常处理器
+  - 在 traffic/http 模块创建 GlobalExceptionHandler 类
+  - 添加 @RestControllerAdvice 注解
+  - 实现处理 BusinessException 的方法，使用 @ExceptionHandler 注解
+  - 实现处理 ValidationException 的方法，使用 @ExceptionHandler 注解
+  - 实现处理通用 Exception 的方法，使用 @ExceptionHandler 注解
+  - 返回统一的错误响应格式（包含错误码、错误消息、时间戳）
+  - _需求: 16.1, 16.2, 16.3, 16.4, 16.5_
+  - **验证标准**：
+    - 文件 GlobalExceptionHandler.java 存在于 traffic/http 模块
+    - 类上有 @RestControllerAdvice 注解
+    - 存在处理 BusinessException 的方法，带 @ExceptionHandler(BusinessException.class) 注解
+    - 存在处理 ValidationException 的方法，带 @ExceptionHandler(ValidationException.class) 注解
+    - 存在处理 Exception 的方法，带 @ExceptionHandler(Exception.class) 注解
+    - 所有处理方法返回包含 errorCode、message、timestamp 字段的响应对象
+    - 执行 `mvn compile -pl :http` 命令成功且无编译错误
+
+- [ ] 18. 创建 consumer 消息消费模块
+  - 创建 traffic/consumer/pom.xml
+  - 声明对 application-api 和 common 的依赖
+  - 创建基础包结构
+  - _需求: 3.3_
+  - **验证标准**：
+    - 文件 traffic/consumer/pom.xml 存在
+    - 依赖中包含 application-api 和 common
+    - 目录 traffic/consumer/src/main/java/com/catface/com/orderservice/traffic/consumer 存在
+    - 执行 `mvn compile -pl :consumer` 命令成功
+
+- [ ] 19. 创建 bootstrap 启动模块
+  - 创建 bootstrap/pom.xml，packaging 为 "jar"
+  - 声明对 http、consumer、application-impl、domain-impl、mysql-impl、redis-impl、sqs-impl、common 的依赖
+  - 添加 spring-boot-starter 依赖
+  - 配置 spring-boot-maven-plugin 插件，包含 repackage goal
+  - _需求: 9.1, 9.2, 9.3, 9.5_
+  - **验证标准**：
+    - 文件 bootstrap/pom.xml 存在，packaging 为 "jar"
+    - 依赖中包含 http、consumer、application-impl、domain-impl、mysql-impl、redis-impl、sqs-impl、common（所有 groupId 为 com.catface.com）
+    - 依赖中包含 spring-boot-starter
+    - build/plugins 中配置了 spring-boot-maven-plugin，包含 repackage goal
+    - 执行 `mvn compile -pl bootstrap` 命令成功
+
+- [ ] 20. 创建主启动类
+  - 在 bootstrap 模块创建 OrderServiceApplication 类
+  - 位于包 com.catface.com.orderservice
+  - 添加 @SpringBootApplication 注解
+  - 实现 main 方法，调用 SpringApplication.run()
+  - _需求: 9.4_
+  - **验证标准**：
+    - 文件 OrderServiceApplication.java 存在于 bootstrap/src/main/java/com/catface/com/orderservice/
+    - 类上有 @SpringBootApplication 注解
+    - 存在 public static void main(String[] args) 方法
+    - main 方法中调用 SpringApplication.run(OrderServiceApplication.class, args)
+    - 执行 `mvn compile -pl bootstrap` 命令成功且无编译错误
+
+- [ ] 21. 创建多环境配置文件
+  - 在 bootstrap/src/main/resources 创建 application.yml
+  - 设置 spring.application.name 为 "order-service"
+  - 设置 spring.profiles.active 默认值
+  - 创建 application-dev.yml，设置 spring.config.activate.on-profile 为 "dev"
+  - 创建 application-staging.yml，设置 spring.config.activate.on-profile 为 "staging"
+  - 创建 application-prod.yml，设置 spring.config.activate.on-profile 为 "prod"
+  - 在 application.yml 中添加 spring.datasource、spring.data.redis、aws.sqs 配置占位符
+  - _需求: 12.1, 12.2, 12.3, 12.4, 12.5_
+  - **验证标准**：
+    - 文件 bootstrap/src/main/resources/application.yml 存在
+    - application.yml 中 spring.application.name 值为 "order-service"
+    - 文件 application-dev.yml、application-staging.yml、application-prod.yml 都存在
+    - application-dev.yml 中 spring.config.activate.on-profile 为 "dev"
+    - application-staging.yml 中 spring.config.activate.on-profile 为 "staging"
+    - application-prod.yml 中 spring.config.activate.on-profile 为 "prod"
+    - application.yml 包含 spring.datasource、spring.data.redis、aws.sqs 配置节
+    - 执行 `mvn package -pl bootstrap` 命令成功
+
+- [ ] 22. 配置 Prometheus 监控集成
+  - 在 bootstrap/pom.xml 添加 micrometer-registry-prometheus 依赖
+  - 在 bootstrap/pom.xml 添加 spring-boot-starter-actuator 依赖
+  - 在 application.yml 配置 management.endpoints.web.exposure.include 包含 "prometheus"
+  - 在 application.yml 配置 management.metrics.export.prometheus.enabled 为 true
+  - 配置 management.metrics.tags.application 为 ${spring.application.name}
+  - _需求: 17.1, 17.2, 17.3, 17.4_
+  - **验证标准**：
+    - bootstrap/pom.xml 依赖中包含 micrometer-registry-prometheus
+    - bootstrap/pom.xml 依赖中包含 spring-boot-starter-actuator
+    - application.yml 中 management.endpoints.web.exposure.include 包含 "prometheus"
+    - application.yml 中 management.metrics.export.prometheus.enabled 为 true
+    - application.yml 中 management.metrics.tags.application 配置存在
+    - 执行 `mvn package -pl bootstrap` 命令成功
+
+- [ ] 23. 验证项目构建和依赖关系
+  - 在项目根目录执行 mvn clean install，验证所有模块成功构建
+  - 执行 mvn dependency:tree，验证无循环依赖错误
+  - 验证 domain-api 不依赖 application-api 或 traffic 模块
+  - 验证 domain-impl 不依赖 application-impl 或 traffic 模块
+  - 验证 mysql-impl 不依赖 redis-impl 或 sqs-impl
+  - 验证 application-api 不依赖 domain-impl、mysql-impl、redis-impl、sqs-impl
+  - 启动应用，访问 /actuator/prometheus 端点，验证返回 Prometheus 格式指标数据
+  - _需求: 10.1, 10.2, 10.3, 10.4, 10.5, 13.5, 17.5_
+  - **验证标准**：
+    - 执行 `mvn clean install` 命令返回 BUILD SUCCESS
+    - 执行 `mvn dependency:tree` 命令成功，输出中无 "cycle detected" 错误
+    - 检查 domain/domain-api/pom.xml，确认不依赖 application-api、http、consumer
+    - 检查 domain/domain-impl/pom.xml，确认不依赖 application-impl、http、consumer
+    - 检查 infrastructure/repository/mysql-impl/pom.xml，确认不依赖 redis-impl、sqs-impl
+    - 检查 application/application-api/pom.xml，确认不依赖 domain-impl、mysql-impl、redis-impl、sqs-impl
+    - 执行 `java -jar bootstrap/target/order-service-*.jar` 启动应用
+    - 执行 `curl http://localhost:8080/actuator/prometheus` 返回 200 状态码
+    - 响应内容包含 Prometheus 格式的指标数据（如 jvm_memory_used_bytes、http_server_requests_seconds 等）

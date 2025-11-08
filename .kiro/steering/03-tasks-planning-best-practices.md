@@ -109,3 +109,195 @@ inclusion: always
 - ✅ 便于进度跟踪
 - ✅ 降低实施风险
 - ✅ 支持并行开发
+
+
+## 任务描述的三个层次
+
+**核心原则**：任务描述应该是"做什么"，而不是"怎么做"
+
+任务拆分的目标是将设计转化为可执行的目标，而不是编写详细的编码指令。任务应该描述要达成的结果，而不是逐步的实现细节。
+
+### 1. 目标层（推荐）
+
+**特点**：描述要达成的结果，不涉及具体实现步骤
+
+**示例**：
+```markdown
+- 创建 common 模块，实现统一的异常体系和响应类
+- 配置 Bootstrap 模块的监控和追踪依赖
+- 实现 HTTP 模块的全局异常处理器
+```
+
+**适用场景**：大部分任务
+
+**优点**：
+- 给执行者留有实现空间
+- 关注结果而非过程
+- 避免过度细节化
+
+### 2. 步骤层（谨慎使用）
+
+**特点**：列出主要步骤，但不涉及具体的代码细节
+
+**示例**：
+```markdown
+- 创建 common 模块，配置为 jar 类型
+- 实现异常体系：BaseException、BusinessException、SystemException
+- 实现统一响应类 Result
+- 创建包结构：exception、dto、constant、util
+```
+
+**适用场景**：复杂任务需要明确子步骤时
+
+**注意事项**：
+- 步骤应该是高层次的
+- 避免涉及具体的配置项或代码行
+- 保持在"做什么"的层面
+
+### 3. 细节层（避免使用）
+
+**特点**：详细到每个配置项、每行代码
+
+**错误示例**：
+```markdown
+- 在项目根目录创建 pom.xml 文件
+- 配置 `<groupId>com.catface.order</groupId>`
+- 配置 `<artifactId>order-service</artifactId>`
+- 在 `<properties>` 节中添加：`<java.version>21</java.version>`
+- 在 BaseException 类中添加 `private final String code;` 字段
+```
+
+**问题**：这是编码指令，不是任务描述，与直接编码没有区别
+
+### 层次对比示例
+
+**同一个任务的三种描述方式**：
+
+**❌ 细节层（避免）**：
+```markdown
+- 在 common 目录下创建 pom.xml
+- 在 pom.xml 中添加 <parent> 节，指向根 POM
+- 在 pom.xml 中添加 <artifactId>common</artifactId>
+- 在 pom.xml 中添加 <packaging>jar</packaging>
+- 在 <dependencies> 节中添加 lombok 依赖
+- 创建 src/main/java/com/catface/order/common/exception 目录
+- 在 exception 目录下创建 BaseException.java
+- 在 BaseException 类中添加 @Getter 注解
+- 在 BaseException 类中添加 private final String code 字段
+```
+
+**⚠️ 步骤层（谨慎使用）**：
+```markdown
+- 创建 common 模块，配置为 jar 类型，添加 Lombok 依赖
+- 实现异常体系：BaseException（抽象类）、BusinessException、SystemException
+- 实现统一响应类 Result，包含 code、message、data 字段
+- 创建包结构：exception、dto、constant、util
+- 在根 POM 中声明 common 模块
+```
+
+**✅ 目标层（推荐）**：
+```markdown
+- 创建 common 模块，实现统一的异常体系和响应类
+```
+
+### 验收标准的编写
+
+**重要**：验收标准应该详细，但要关注"如何验证"，而不是"如何实现"
+
+**好的验收标准**：
+```markdown
+**验收标准**：
+- 运行 `mvn clean compile` 成功，输出 "BUILD SUCCESS"
+- 检查 common/pom.xml，确认 parent 指向根 POM，packaging 为 jar
+- 确认 dependencies 节包含 lombok 依赖，且未指定版本号
+- 确认存在 4 个 Java 类：BaseException、BusinessException、SystemException、Result
+- 检查 BaseException 类，确认有 @Getter 注解、code 和 message 字段
+```
+
+**特点**：
+- 可执行的验证步骤
+- 明确的检查点
+- 具体的预期结果
+
+### 实用技巧
+
+#### 1. 使用"创建"、"实现"、"配置"等动词开头
+
+```markdown
+✅ 创建 domain-api 模块，定义领域模型结构
+✅ 实现 HTTP 模块的全局异常处理器
+✅ 配置 Bootstrap 模块的 Actuator 端点
+```
+
+#### 2. 避免使用"添加"、"在...中"等细节性动词
+
+```markdown
+❌ 在 pom.xml 中添加 lombok 依赖
+❌ 在 BaseException 类中添加 code 字段
+```
+
+#### 3. 关注"是什么"而不是"在哪里"
+
+```markdown
+✅ 创建统一的异常体系（BaseException、BusinessException、SystemException）
+❌ 在 common/src/main/java/com/catface/order/common/exception 目录下创建 BaseException.java
+```
+
+#### 4. 验收标准要具体，但任务描述要抽象
+
+```markdown
+**任务描述**（抽象）：
+- 创建 common 模块，实现异常体系
+
+**验收标准**（具体）：
+- 确认存在 BaseException.java、BusinessException.java、SystemException.java
+- 检查 BaseException 类，确认有 @Getter 注解、code 和 message 字段
+```
+
+## 任务粒度的把握
+
+### 合适的任务粒度
+
+**单个任务应该**：
+- 可以在 1-4 小时内完成
+- 有明确的开始和结束
+- 可以独立验证
+- 产生可见的成果
+
+### 任务过大的信号
+
+- 需要超过 4 小时完成
+- 包含多个不相关的功能
+- 难以定义验收标准
+
+**解决方案**：拆分为子任务
+
+### 任务过小的信号
+
+- 只需要几分钟完成
+- 只是一个配置项或一行代码
+- 无法独立验证
+
+**解决方案**：合并到相关任务中
+
+## 检查清单
+
+在创建任务时，问自己以下问题：
+
+- [ ] 任务描述是否关注"做什么"而不是"怎么做"？
+- [ ] 任务是否可以在 1-4 小时内完成？
+- [ ] 验收标准是否具体、可执行？
+- [ ] 验收标准是否包含具体的命令、文件路径、预期输出？
+- [ ] 任务是否可以独立验证？
+- [ ] 任务描述是否避免了过多的实现细节？
+- [ ] 是否给执行者留有实现空间？
+
+## 任务拆分的黄金法则
+
+1. **任务描述要抽象**：说明要达成什么目标
+2. **验收标准要具体**：说明如何验证目标达成
+3. **避免编码指令**：不要逐行告诉执行者怎么写代码
+4. **关注结果而非过程**：描述要产生什么，而不是如何产生
+5. **保持合适粒度**：1-4 小时可完成，可独立验证
+
+**记住**：任务是给开发者的目标指引，不是给 AI 的编码指令。如果任务描述读起来像是在写代码，那就说明太详细了。

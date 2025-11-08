@@ -135,16 +135,16 @@
 
 #### 验收标准
 
-1. THE OrderService SHALL 创建名为 "traffic" 的父模块，其 packaging 类型为 "pom"
-2. THE OrderService SHALL 在 traffic 父模块下创建名为 "http" 的子模块，其 packaging 类型为 "jar"
+1. THE OrderService SHALL 创建名为 "interface" 的父模块，其 packaging 类型为 "pom"
+2. THE OrderService SHALL 在 interface 父模块下创建名为 "http" 的子模块，其 packaging 类型为 "jar"
 3. THE OrderService SHALL 在 http 模块的 pom.xml 中添加对 application-api 模块的依赖
 4. THE OrderService SHALL 在 http 模块的 pom.xml 中添加对 common 模块的依赖
 5. THE OrderService SHALL 在 http 模块的 pom.xml 中添加 Spring Boot Starter Web 依赖
 6. THE OrderService SHALL 在 http 模块的 pom.xml 中添加 Spring Boot Starter Validation 依赖
-7. THE OrderService SHALL 在 traffic 父模块下创建名为 "consumer" 的子模块，其 packaging 类型为 "jar"
+7. THE OrderService SHALL 在 interface 父模块下创建名为 "consumer" 的子模块，其 packaging 类型为 "jar"
 8. THE OrderService SHALL 在 consumer 模块的 pom.xml 中添加对 application-api 模块的依赖
 9. THE OrderService SHALL 在 consumer 模块的 pom.xml 中添加对 common 模块的依赖
-10. THE OrderService SHALL 在父 POM 的 `<modules>` 节中声明 traffic 模块
+10. THE OrderService SHALL 在父 POM 的 `<modules>` 节中声明 interface 模块
 
 ### 需求 10：启动模块创建
 

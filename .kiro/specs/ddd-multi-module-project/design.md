@@ -12,7 +12,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    接口层 (Traffic)                      │
+│                    接口层 (Interface)                      │
 │              ┌──────────┐      ┌──────────┐             │
 │              │   HTTP   │      │ Consumer │             │
 │              └──────────┘      └──────────┘             │
@@ -62,8 +62,8 @@
 ```mermaid
 graph TD
     Bootstrap[Bootstrap 启动模块]
-    HTTP[Traffic/HTTP]
-    Consumer[Traffic/Consumer]
+    HTTP[Interface/HTTP]
+    Consumer[Interface/Consumer]
     AppAPI[Application-API]
     AppImpl[Application-Impl]
     DomainAPI[Domain-API]
@@ -391,7 +391,7 @@ com.catface.order.application.impl
 - 处理事务边界
 - 协调多个聚合根的操作
 
-### 6. Traffic 层设计
+### 6. Interface 层设计
 
 #### HTTP 模块
 
@@ -399,7 +399,7 @@ com.catface.order.application.impl
 
 **包结构**：
 ```
-com.catface.order.traffic.http
+com.catface.order.interface.http
 ├── controller     # REST 控制器
 ├── request        # 请求对象
 ├── response       # 响应对象
@@ -450,7 +450,7 @@ public class GlobalExceptionHandler {
 
 **包结构**：
 ```
-com.catface.order.traffic.consumer
+com.catface.order.interface.consumer
 ├── listener       # 消息监听器
 ├── handler        # 消息处理器
 └── exception      # 全局异常处理器

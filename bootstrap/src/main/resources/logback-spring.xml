@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 引入 Spring Boot 默认配置 -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    
+    <!-- 定义日志文件路径 -->
+    <property name="LOG_PATH" value="logs"/>
+    <property name="LOG_FILE" value="${LOG_PATH}/application.log"/>
+    
+    <!-- 定义应用名称 -->
+    <property name="APP_NAME" value="order-service"/>
+    
+    <!-- 控制台 Appender（默认格式，带颜色） -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %X{traceId:-} %X{spanId:-} %m%n%wEx</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    
+    <!-- JSON 文件 Appender -->
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeContext>true</includeContext>
+            <includeMdc>true</includeMdc>
+            <customFields>{"application":"${APP_NAME}"}</customFields>
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <message>message</message>
+                <logger>logger</logger>
+                <thread>thread</thread>
+                <level>level</level>
+                <stackTrace>exception</stackTrace>
+            </fieldNames>
+        </encoder>
+        
+        <!-- 滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 按日期滚动 -->
+            <fileNamePattern>${LOG_PATH}/application-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 单个文件最大 100MB -->
+            <maxFileSize>100MB</maxFileSize>
+            <!-- 非生产环境保留30天，生产环境保留90天（通过profile控制） -->
+            <springProfile name="local,dev,test,staging">
+                <maxHistory>30</maxHistory>
+            </springProfile>
+            <springProfile name="prod">
+                <maxHistory>90</maxHistory>
+            </springProfile>
+            <!-- 总大小限制 -->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    
+    <!-- 异步 Appender -->
+    <appender name="ASYNC_JSON_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="JSON_FILE"/>
+        <!-- 队列大小 -->
+        <queueSize>512</queueSize>
+        <!-- 丢弃阈值，0表示不丢弃 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 包含调用者信息 -->
+        <includeCallerData>false</includeCallerData>
+    </appender>
+    
+    <!-- Local 环境配置：输出到控制台，默认格式 -->
+    <springProfile name="local">
+        <!-- com.catface 包 DEBUG 级别 -->
+        <logger name="com.catface" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+        
+        <!-- 其他包 INFO 级别 -->
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+    
+    <!-- Dev/Test/Staging 环境配置：输出到JSON文件 -->
+    <springProfile name="dev,test,staging">
+        <!-- com.catface 包 DEBUG 级别 -->
+        <logger name="com.catface" level="DEBUG" additivity="false">
+            <appender-ref ref="ASYNC_JSON_FILE"/>
+        </logger>
+        
+        <!-- 其他包 INFO 级别 -->
+        <root level="INFO">
+            <appender-ref ref="ASYNC_JSON_FILE"/>
+        </root>
+    </springProfile>
+    
+    <!-- Prod 环境配置：输出到JSON文件，所有包INFO级别 -->
+    <springProfile name="prod">
+        <!-- 所有包统一 INFO 级别 -->
+        <root level="INFO">
+            <appender-ref ref="ASYNC_JSON_FILE"/>
+        </root>
+    </springProfile>
+    
+</configuration>

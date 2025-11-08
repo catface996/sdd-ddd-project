@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: order-service
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+      base-path: /actuator
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+    enable:
+      jvm: true
+      http: true
+      hikaricp: true
+
+logging:
+  level:
+    root: INFO
+    com.catface.order: DEBUG

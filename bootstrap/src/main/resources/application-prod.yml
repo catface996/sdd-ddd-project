@@ -1,0 +1,19 @@
+# Prod 环境配置
+# 用于生产环境
+
+spring:
+  application:
+    name: order-service
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+# 日志配置
+logging:
+  level:
+    com.catface: INFO   # 业务包使用 INFO 级别
+    root: INFO          # 其他包使用 INFO 级别

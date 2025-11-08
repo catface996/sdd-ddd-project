@@ -213,14 +213,14 @@
       - 确认 application/pom.xml 的 modules 节包含 `<module>application-api</module>` 和 `<module>application-impl</module>`
     - _需求: 8.4, 8.5, 8.6, 8.7, 15.3_
 
-- [x] 6. 创建 Traffic 接口层模块结构
-  - [x] 6.1 创建 traffic 父模块
-    - 创建 traffic 父模块
+- [x] 6. 创建 Interface 接口层模块结构
+  - [x] 6.1 创建 interface 父模块
+    - 创建 interface 父模块
     - **验收标准**：
-      - 运行 `mvn clean compile` 成功，输出包含 "Building traffic" 和 "BUILD SUCCESS"
-      - 检查 traffic/pom.xml，确认 parent 指向根 POM，packaging 为 pom
-      - 确认 traffic/pom.xml 暂未声明任何子模块
-      - 确认根 POM 的 modules 节包含 `<module>traffic</module>`
+      - 运行 `mvn clean compile` 成功，输出包含 "Building interface" 和 "BUILD SUCCESS"
+      - 检查 interface/pom.xml，确认 parent 指向根 POM，packaging 为 pom
+      - 确认 interface/pom.xml 暂未声明任何子模块
+      - 确认根 POM 的 modules 节包含 `<module>interface</module>`
     - _需求: 9.1, 9.10_
   
   - [x] 6.2 创建 http 模块
@@ -229,12 +229,12 @@
     - 创建包结构：controller、request、response、exception
     - **验收标准**：
       - 运行 `mvn clean compile` 成功，输出包含 "Building http" 和 "BUILD SUCCESS"
-      - 检查 http/pom.xml，确认 parent 指向 traffic POM，packaging 为 jar
+      - 检查 http/pom.xml，确认 parent 指向 interface POM，packaging 为 jar
       - 确认 dependencies 节包含 application-api、common、spring-boot-starter-web、spring-boot-starter-validation 四个依赖
       - 确认所有依赖未指定版本号
       - 确认不直接依赖领域层（domain-api、domain-impl）或基础设施层模块
       - 确认存在包目录：controller、request、response、exception
-      - 确认 traffic/pom.xml 的 modules 节包含 `<module>http</module>`
+      - 确认 interface/pom.xml 的 modules 节包含 `<module>http</module>`
     - _需求: 9.2, 9.3, 9.4, 9.5, 9.6, 15.4_
   
   - [x] 6.3 创建 consumer 模块
@@ -243,11 +243,11 @@
     - 创建包结构：listener、handler、exception
     - **验收标准**：
       - 运行 `mvn clean compile` 成功，输出包含 "Building consumer" 和 "BUILD SUCCESS"
-      - 检查 consumer/pom.xml，确认 parent 指向 traffic POM，packaging 为 jar
+      - 检查 consumer/pom.xml，确认 parent 指向 interface POM，packaging 为 jar
       - 确认 dependencies 节包含 application-api、common 两个依赖，未指定版本号
       - 确认不直接依赖领域层（domain-api、domain-impl）或基础设施层模块
       - 确认存在包目录：listener、handler、exception
-      - 确认 traffic/pom.xml 的 modules 节包含 `<module>http</module>` 和 `<module>consumer</module>`
+      - 确认 interface/pom.xml 的 modules 节包含 `<module>http</module>` 和 `<module>consumer</module>`
     - _需求: 9.7, 9.8, 9.9, 15.4_
 
 - [x] 7. 实现 HTTP 模块全局异常处理器
@@ -388,7 +388,7 @@
     - 按 Ctrl+C 停止应用
   - _需求: 10.14, 10.15, 11.6, 13.6, 13.7_
 
-- [ ] 12. 验证多环境配置和日志输出
+- [x] 12. 验证多环境配置和日志输出
   - 使用不同的 profile 启动应用，验证配置文件加载和日志输出格式
   - **验收标准**：
     - 运行 `mvn spring-boot:run -pl bootstrap -Dspring-boot.run.arguments=--spring.profiles.active=local`，应用成功启动
@@ -407,8 +407,8 @@
     - 按 Ctrl+C 停止应用
   - _需求: 11.6, 11.7, 11.8, 16.7, 16.8, 16.11_
 
-- [ ] 13. 创建测试控制器验证异常处理
-  - [ ] 13.1 创建 HTTP 测试控制器
+- [x] 13. 创建测试控制器验证异常处理
+  - [x] 13.1 创建 HTTP 测试控制器
     - 创建测试控制器，用于验证异常处理
     - 创建 4 个测试端点：/test/business-exception、/test/system-exception、/test/validation、/test/unknown-exception
     - **验收标准**：
@@ -418,7 +418,7 @@
       - 确认包含 4 个端点方法，分别抛出 BusinessException、SystemException、参数校验异常、RuntimeException
     - _需求: 12.8, 12.9_
   
-  - [ ] 13.2 验证 HTTP 异常处理
+  - [x] 13.2 验证 HTTP 异常处理
     - 启动应用，访问测试端点，验证异常处理器返回正确的 JSON 响应
     - **验收标准**：
       - 运行 `mvn spring-boot:run -pl bootstrap`，应用成功启动
@@ -429,7 +429,7 @@
       - 按 Ctrl+C 停止应用
     - _需求: 12.8, 12.9_
   
-  - [ ] 13.3 创建 Consumer 测试监听器
+  - [x] 13.3 创建 Consumer 测试监听器
     - 创建测试监听器，用于验证异常处理
     - **验收标准**：
       - 运行 `mvn clean compile` 成功，输出 "BUILD SUCCESS"
@@ -438,7 +438,7 @@
       - 确认有 handleMessage 方法，根据参数值抛出 BusinessException、SystemException 或 RuntimeException
     - _需求: 12.10_
   
-  - [ ] 13.4 验证 Consumer 异常处理
+  - [x] 13.4 验证 Consumer 异常处理
     - 启动应用，通过创建测试端点或单元测试调用 TestMessageListener 方法，验证异常处理器记录正确的日志
     - **验收标准**：
       - 运行 `mvn spring-boot:run -pl bootstrap`，应用成功启动
@@ -450,7 +450,7 @@
       - 按 Ctrl+C 停止应用
     - _需求: 12.10_
 
-- [ ] 14. 验证模块依赖关系
+- [x] 14. 验证模块依赖关系
   - 检查各模块的 pom.xml 文件，确认依赖关系符合 DDD 分层架构原则
   - **验收标准**：
     - 检查 domain-api/pom.xml，确认 dependencies 节只包含 common 模块，不包含任何 infrastructure 层模块（repository-api、cache-api、mq-api、mysql-impl、redis-impl、sqs-impl）
@@ -461,7 +461,7 @@
     - 确认所有模块的依赖关系遵循单向依赖原则（外层依赖内层，内层不反向依赖外层）
   - _需求: 15.1, 15.2, 15.3, 15.4, 15.5_
 
-- [ ] 15. 验证项目构建
+- [x] 15. 验证项目构建
   - 执行完整的项目构建，验证编译、打包、JAR 文件可执行性
   - **验收标准**：
     - 运行 `mvn clean compile`，输出 "BUILD SUCCESS"，无 ERROR 或 WARNING 信息
@@ -470,7 +470,7 @@
       - domain (domain-api, domain-impl)
       - infrastructure (repository-api, repository/mysql-impl, cache-api, cache/redis-impl, mq-api, mq/sqs-impl)
       - application (application-api, application-impl)
-      - traffic (http, consumer)
+      - interface (http, consumer)
       - bootstrap
     - 运行 `mvn clean package`，输出 "BUILD SUCCESS"，无 ERROR 或 WARNING 信息
     - 检查 bootstrap/target 目录，确认存在 order-service-bootstrap-1.0.0-SNAPSHOT.jar 文件

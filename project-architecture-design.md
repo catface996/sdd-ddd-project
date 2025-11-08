@@ -135,7 +135,11 @@ project-root/
 4. 特殊情况下需要覆盖版本时，在子模块中显式声明版本号
 
 
-### 7.2 其他配置要求
+### 7.2 模块命名规范
+
+所有 Maven 模块的 `<name>` 标签必须使用**首字母大写的英文单词，单词之间用空格分隔**的格式（如 "Order Service"、"Domain API"、"MySQL Implementation"），确保构建日志输出清晰、专业、易读。
+
+### 7.3 其他配置要求
 
 1. 模块间仅通过 API 层接口依赖，禁止跨层直接访问
 2. 启动层 `bootstrap` 管理外部配置文件（如 `application.yml`、`bootstrap.yml`）

@@ -170,7 +170,7 @@
 
 ### 需求 11：日志与追踪体系集成
 
-**用户故事**: 作为开发人员，我希望集成日志和链路追踪功能，以便实现跨模块、跨请求的追踪和结构化日志输出。
+**用户故事**: 作为开发人员，我希望集成日志和链路追踪功能，以便实现跨模块、跨请求的追踪和结构化日志输出，并支持多环境差异化的日志配置。
 
 #### 验收标准
 
@@ -179,7 +179,13 @@
 3. THE OrderService SHALL 在 bootstrap 模块的 pom.xml 中添加 Micrometer Tracing Bridge 依赖
 4. THE OrderService SHALL 在 bootstrap 模块的 src/main/resources 目录下创建 logback-spring.xml 配置文件
 5. THE OrderService SHALL 在 logback-spring.xml 中配置 JSON 格式的日志输出，包含 timestamp、level、thread、logger、traceId、spanId、message 和 exception 字段
-6. WHEN 启动应用时，THE OrderService SHALL 在控制台或日志文件中输出 JSON 格式的日志，包含 traceId 和 spanId 字段
+6. WHEN 使用 local profile 启动应用时，THE OrderService SHALL 将日志输出到控制台，使用默认格式（带颜色），com.catface 包下日志级别为 DEBUG，其他包日志级别为 INFO
+7. WHEN 使用 dev、test 或 staging profile 启动应用时，THE OrderService SHALL 将日志输出到文件（不输出到控制台），使用 JSON 格式，com.catface 包下日志级别为 DEBUG，其他包日志级别为 INFO
+8. WHEN 使用 prod profile 启动应用时，THE OrderService SHALL 将日志输出到文件（不输出到控制台），使用 JSON 格式，所有包日志级别为 INFO
+9. THE OrderService SHALL 配置日志文件按日期滚动，单个文件超过 100MB 时自动分割
+10. THE OrderService SHALL 配置非生产环境保留最近 30 天的日志文件，生产环境保留最近 90 天的日志文件
+11. THE OrderService SHALL 在 logback-spring.xml 中使用 `<springProfile>` 标签区分不同环境的日志配置
+12. WHEN 启动应用时，THE OrderService SHALL 在日志中输出 traceId 和 spanId 字段，用于分布式链路追踪
 
 ### 需求 12：异常处理机制实现
 
@@ -237,16 +243,21 @@
 
 ### 需求 16：多环境配置支持
 
-**用户故事**: 作为运维人员，我希望系统支持多环境配置，以便在不同环境（开发、测试、生产）使用不同的配置参数。
+**用户故事**: 作为运维人员，我希望系统支持多环境配置，以便在不同环境（本地开发、开发、测试、预发布、生产）使用不同的配置参数。
 
 #### 验收标准
 
-1. THE OrderService SHALL 在 bootstrap 模块的 src/main/resources 目录下创建 application-dev.yml 配置文件，用于开发环境配置
-2. THE OrderService SHALL 在 bootstrap 模块的 src/main/resources 目录下创建 application-test.yml 配置文件，用于测试环境配置
-3. THE OrderService SHALL 在 bootstrap 模块的 src/main/resources 目录下创建 application-prod.yml 配置文件，用于生产环境配置
-4. THE OrderService SHALL 在 application.yml 中配置 spring.profiles.active 属性，默认激活 dev 环境
-5. WHEN 使用 --spring.profiles.active=test 参数启动应用时，THE OrderService SHALL 加载 application-test.yml 配置文件
-6. WHEN 使用 --spring.profiles.active=prod 参数启动应用时，THE OrderService SHALL 加载 application-prod.yml 配置文件
+1. THE OrderService SHALL 在 bootstrap 模块的 src/main/resources 目录下创建 application-local.yml 配置文件，用于本地开发环境配置
+2. THE OrderService SHALL 在 bootstrap 模块的 src/main/resources 目录下创建 application-dev.yml 配置文件，用于开发环境配置
+3. THE OrderService SHALL 在 bootstrap 模块的 src/main/resources 目录下创建 application-test.yml 配置文件，用于测试环境配置
+4. THE OrderService SHALL 在 bootstrap 模块的 src/main/resources 目录下创建 application-staging.yml 配置文件，用于预发布环境配置
+5. THE OrderService SHALL 在 bootstrap 模块的 src/main/resources 目录下创建 application-prod.yml 配置文件，用于生产环境配置
+6. THE OrderService SHALL 在 application.yml 中配置 spring.profiles.active 属性，默认激活 local 环境
+7. WHEN 使用 --spring.profiles.active=local 参数启动应用时，THE OrderService SHALL 加载 application-local.yml 配置文件
+8. WHEN 使用 --spring.profiles.active=dev 参数启动应用时，THE OrderService SHALL 加载 application-dev.yml 配置文件
+9. WHEN 使用 --spring.profiles.active=test 参数启动应用时，THE OrderService SHALL 加载 application-test.yml 配置文件
+10. WHEN 使用 --spring.profiles.active=staging 参数启动应用时，THE OrderService SHALL 加载 application-staging.yml 配置文件
+11. WHEN 使用 --spring.profiles.active=prod 参数启动应用时，THE OrderService SHALL 加载 application-prod.yml 配置文件
 
 ### 需求 17：项目构建验证
 

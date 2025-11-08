@@ -2,7 +2,7 @@
 
 ## 任务列表
 
-- [ ] 1. 创建父 POM 和项目基础结构
+- [x] 1. 创建父 POM 和项目基础结构
   - 创建父 POM，配置项目基本信息和依赖管理
   - **验收标准**：
     - 运行 `mvn clean compile` 成功，输出 "BUILD SUCCESS"
@@ -13,7 +13,7 @@
     - 确认暂未声明任何子模块（modules 节为空或不存在）
   - _需求: 1.1, 1.2, 1.3, 1.4, 1.5, 11.1, 13.1, 14.1, 14.2, 14.3, 14.4_
 
-- [ ] 2. 创建 Common 通用模块
+- [x] 2. 创建 Common 通用模块
   - 创建 common 模块，实现统一的异常体系和响应类
   - 实现异常体系：BaseException（抽象类）、BusinessException、SystemException
   - 实现统一响应类 Result
@@ -28,8 +28,8 @@
     - 确认根 POM 的 modules 节包含 `<module>common</module>`
   - _需求: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
 
-- [ ] 3. 创建 Domain 领域层模块结构
-  - [ ] 3.1 创建 domain 父模块
+- [x] 3. 创建 Domain 领域层模块结构
+  - [x] 3.1 创建 domain 父模块
     - 创建 domain 父模块
     - **验收标准**：
       - 运行 `mvn clean compile` 成功，输出包含 "Building domain" 和 "BUILD SUCCESS"
@@ -38,7 +38,7 @@
       - 确认根 POM 的 modules 节包含 `<module>domain</module>`
     - _需求: 3.1, 3.5_
   
-  - [ ] 3.2 创建 domain-api 模块
+  - [x] 3.2 创建 domain-api 模块
     - 创建 domain-api 模块，定义领域模型结构
     - 创建包结构：model（aggregate、entity、vo）、event、service
     - **验收标准**：
@@ -50,7 +50,7 @@
       - 确认 domain/pom.xml 的 modules 节包含 `<module>domain-api</module>`
     - _需求: 3.2, 3.3, 3.4_
   
-  - [ ] 3.3 创建 domain-impl 模块
+  - [x] 3.3 创建 domain-impl 模块
     - 创建 domain-impl 模块
     - **验收标准**：
       - 运行 `mvn clean compile` 成功，输出包含 "Building domain-impl" 和 "BUILD SUCCESS"
@@ -60,8 +60,8 @@
       - 确认 domain/pom.xml 的 modules 节包含 `<module>domain-api</module>` 和 `<module>domain-impl</module>`
     - _需求: 4.1, 4.2, 4.3_
 
-- [ ] 4. 创建 Infrastructure 基础设施层模块结构
-  - [ ] 4.1 创建 infrastructure 父模块
+- [x] 4. 创建 Infrastructure 基础设施层模块结构
+  - [x] 4.1 创建 infrastructure 父模块
     - 创建 infrastructure 父模块
     - **验收标准**：
       - 运行 `mvn clean compile` 成功，输出包含 "Building infrastructure" 和 "BUILD SUCCESS"
@@ -70,8 +70,8 @@
       - 确认根 POM 的 modules 节包含 `<module>infrastructure</module>`
     - _需求: 5.1, 5.8_
   
-  - [ ] 4.2 创建 repository 仓储模块
-    - [ ] 4.2.1 创建 repository 父模块
+  - [x] 4.2 创建 repository 仓储模块
+    - [x] 4.2.1 创建 repository 父模块
       - 创建 repository 父模块
       - **验收标准**：
         - 运行 `mvn clean compile` 成功，输出包含 "Building repository" 和 "BUILD SUCCESS"
@@ -80,7 +80,7 @@
         - 确认 infrastructure/pom.xml 的 modules 节包含 `<module>repository</module>`
       - _需求: 5.2_
     
-    - [ ] 4.2.2 创建 repository-api 模块
+    - [x] 4.2.2 创建 repository-api 模块
       - 创建 repository-api 模块，定义仓储接口
       - 创建包结构：repository
       - **验收标准**：
@@ -91,7 +91,7 @@
         - 确认 repository/pom.xml 的 modules 节包含 `<module>repository-api</module>`
       - _需求: 5.3, 5.4_
     
-    - [ ] 4.2.3 创建 mysql-impl 模块
+    - [x] 4.2.3 创建 mysql-impl 模块
       - 创建 mysql-impl 模块，实现 MyBatis-Plus 数据访问
       - 添加依赖：repository-api、common、mybatis-plus-boot-starter、mysql-connector-j（scope: runtime）
       - **验收标准**：
@@ -104,8 +104,8 @@
         - 确认 repository/pom.xml 的 modules 节包含 `<module>repository-api</module>` 和 `<module>mysql-impl</module>`
       - _需求: 5.5, 5.6, 5.7_
   
-  - [ ] 4.3 创建 cache 缓存模块
-    - [ ] 4.3.1 创建 cache 父模块
+  - [x] 4.3 创建 cache 缓存模块
+    - [x] 4.3.1 创建 cache 父模块
       - 创建 cache 父模块
       - **验收标准**：
         - 运行 `mvn clean compile` 成功，输出包含 "Building cache" 和 "BUILD SUCCESS"
@@ -114,7 +114,7 @@
         - 确认 infrastructure/pom.xml 的 modules 节包含 `<module>cache</module>`
       - _需求: 6.1_
     
-    - [ ] 4.3.2 创建 cache-api 模块
+    - [x] 4.3.2 创建 cache-api 模块
       - 创建 cache-api 模块，定义缓存接口
       - 创建包结构：cache
       - **验收标准**：
@@ -125,7 +125,7 @@
         - 确认 cache/pom.xml 的 modules 节包含 `<module>cache-api</module>`
       - _需求: 6.2, 6.3_
     
-    - [ ] 4.3.3 创建 redis-impl 模块
+    - [x] 4.3.3 创建 redis-impl 模块
       - 创建 redis-impl 模块，实现 Redis 缓存
       - 添加依赖：cache-api、common、spring-boot-starter-data-redis
       - **验收标准**：
@@ -137,8 +137,8 @@
         - 确认 cache/pom.xml 的 modules 节包含 `<module>cache-api</module>` 和 `<module>redis-impl</module>`
       - _需求: 6.4, 6.5, 6.6_
   
-  - [ ] 4.4 创建 mq 消息队列模块
-    - [ ] 4.4.1 创建 mq 父模块
+  - [x] 4.4 创建 mq 消息队列模块
+    - [x] 4.4.1 创建 mq 父模块
       - 创建 mq 父模块
       - **验收标准**：
         - 运行 `mvn clean compile` 成功，输出包含 "Building mq" 和 "BUILD SUCCESS"
@@ -147,7 +147,7 @@
         - 确认 infrastructure/pom.xml 的 modules 节包含 `<module>mq</module>`
       - _需求: 7.1_
     
-    - [ ] 4.4.2 创建 mq-api 模块
+    - [x] 4.4.2 创建 mq-api 模块
       - 创建 mq-api 模块，定义消息队列接口
       - 创建包结构：producer
       - **验收标准**：
@@ -158,7 +158,7 @@
         - 确认 mq/pom.xml 的 modules 节包含 `<module>mq-api</module>`
       - _需求: 7.2, 7.3_
     
-    - [ ] 4.4.3 创建 sqs-impl 模块
+    - [x] 4.4.3 创建 sqs-impl 模块
       - 创建 sqs-impl 模块，实现 AWS SQS 消息队列
       - 添加依赖：mq-api、common、sqs（groupId: software.amazon.awssdk）
       - **验收标准**：
@@ -170,7 +170,7 @@
         - 确认 mq/pom.xml 的 modules 节包含 `<module>mq-api</module>` 和 `<module>sqs-impl</module>`
       - _需求: 7.4, 7.5, 7.6_
   
-  - [ ] 4.5 更新 domain-impl 模块依赖
+  - [x] 4.5 更新 domain-impl 模块依赖
     - 添加基础设施层 API 依赖到 domain-impl 模块
     - 添加依赖：repository-api、cache-api、mq-api（不包含实现模块）
     - **验收标准**：
@@ -180,8 +180,8 @@
       - 确认不直接依赖基础设施实现模块（mysql-impl、redis-impl、sqs-impl）
     - _需求: 7.7, 15.2_
 
-- [ ] 5. 创建 Application 应用层模块结构
-  - [ ] 5.1 创建 application 父模块
+- [x] 5. 创建 Application 应用层模块结构
+  - [x] 5.1 创建 application 父模块
     - 创建 application 父模块
     - **验收标准**：
       - 运行 `mvn clean compile` 成功，输出包含 "Building application" 和 "BUILD SUCCESS"
@@ -190,7 +190,7 @@
       - 确认根 POM 的 modules 节包含 `<module>application</module>`
     - _需求: 8.1, 8.8_
   
-  - [ ] 5.2 创建 application-api 模块
+  - [x] 5.2 创建 application-api 模块
     - 创建 application-api 模块，定义应用服务接口
     - 创建包结构：service、dto、command、query
     - **验收标准**：
@@ -201,7 +201,7 @@
       - 确认 application/pom.xml 的 modules 节包含 `<module>application-api</module>`
     - _需求: 8.2, 8.3_
   
-  - [ ] 5.3 创建 application-impl 模块
+  - [x] 5.3 创建 application-impl 模块
     - 创建 application-impl 模块
     - 添加依赖：application-api、domain-api、common（不包含基础设施实现模块）
     - **验收标准**：
@@ -213,8 +213,8 @@
       - 确认 application/pom.xml 的 modules 节包含 `<module>application-api</module>` 和 `<module>application-impl</module>`
     - _需求: 8.4, 8.5, 8.6, 8.7, 15.3_
 
-- [ ] 6. 创建 Traffic 接口层模块结构
-  - [ ] 6.1 创建 traffic 父模块
+- [x] 6. 创建 Traffic 接口层模块结构
+  - [x] 6.1 创建 traffic 父模块
     - 创建 traffic 父模块
     - **验收标准**：
       - 运行 `mvn clean compile` 成功，输出包含 "Building traffic" 和 "BUILD SUCCESS"
@@ -223,7 +223,7 @@
       - 确认根 POM 的 modules 节包含 `<module>traffic</module>`
     - _需求: 9.1, 9.10_
   
-  - [ ] 6.2 创建 http 模块
+  - [x] 6.2 创建 http 模块
     - 创建 http 模块，实现 REST API 接口
     - 添加依赖：application-api、common、spring-boot-starter-web、spring-boot-starter-validation
     - 创建包结构：controller、request、response、exception
@@ -237,7 +237,7 @@
       - 确认 traffic/pom.xml 的 modules 节包含 `<module>http</module>`
     - _需求: 9.2, 9.3, 9.4, 9.5, 9.6, 15.4_
   
-  - [ ] 6.3 创建 consumer 模块
+  - [x] 6.3 创建 consumer 模块
     - 创建 consumer 模块，实现消息消费者
     - 添加依赖：application-api、common
     - 创建包结构：listener、handler、exception
@@ -250,7 +250,7 @@
       - 确认 traffic/pom.xml 的 modules 节包含 `<module>http</module>` 和 `<module>consumer</module>`
     - _需求: 9.7, 9.8, 9.9, 15.4_
 
-- [ ] 7. 实现 HTTP 模块全局异常处理器
+- [x] 7. 实现 HTTP 模块全局异常处理器
   - 实现 HTTP 全局异常处理器
   - 使用 @RestControllerAdvice 注解
   - 实现 4 个异常处理方法：handleBusinessException、handleSystemException、handleValidationException、handleException
@@ -265,7 +265,7 @@
     - 确认 handleException 返回通用错误信息 "系统错误，请稍后重试"，错误码为 "SYSTEM_ERROR"
   - _需求: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 8. 实现 Consumer 模块全局异常处理器
+- [x] 8. 实现 Consumer 模块全局异常处理器
   - 实现 Consumer 全局异常处理器
   - 使用 @ControllerAdvice 和 @Slf4j 注解
   - 实现 3 个异常处理方法，使用 log.error 记录日志（不返回响应）
@@ -278,8 +278,8 @@
     - 确认每个方法都使用 log.error 记录 ERROR 级别日志，包含异常类型、错误消息和堆栈信息
   - _需求: 12.6, 12.7_
 
-- [ ] 9. 创建 Bootstrap 启动模块
-  - [ ] 9.1 创建 bootstrap 模块基础结构
+- [x] 9. 创建 Bootstrap 启动模块
+  - [x] 9.1 创建 bootstrap 模块基础结构
     - 创建 bootstrap 模块，组装所有实现模块
     - 添加依赖：http、consumer、application-impl、domain-impl、mysql-impl、redis-impl、sqs-impl、common
     - **验收标准**：
@@ -290,7 +290,7 @@
       - 确认根 POM 的 modules 节包含 `<module>bootstrap</module>`
     - _需求: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9, 10.13_
   
-  - [ ] 9.2 添加监控和追踪依赖
+  - [x] 9.2 添加监控和追踪依赖
     - 添加监控和追踪依赖到 bootstrap 模块
     - 添加依赖：spring-boot-starter-actuator、micrometer-registry-prometheus、micrometer-tracing-bridge-brave、logstash-logback-encoder
     - **验收标准**：
@@ -299,7 +299,7 @@
       - 确认所有依赖未指定版本号
     - _需求: 11.1, 11.2, 11.3, 13.1, 13.2, 13.3_
   
-  - [ ] 9.3 创建主启动类
+  - [x] 9.3 创建主启动类
     - 创建 Spring Boot 主启动类
     - 使用 @SpringBootApplication 注解，设置 scanBasePackages 为 "com.catface.order"
     - **验收标准**：
@@ -309,7 +309,7 @@
       - 确认有 main 方法，调用 SpringApplication.run(OrderServiceApplication.class, args)
     - _需求: 10.10_
   
-  - [ ] 9.4 配置 Spring Boot Maven 插件
+  - [x] 9.4 配置 Spring Boot Maven 插件
     - 配置 Spring Boot Maven 插件
     - 配置 mainClass 为 com.catface.order.bootstrap.OrderServiceApplication
     - **验收标准**：
@@ -319,8 +319,8 @@
       - 确认 bootstrap/target 目录下生成 order-service-bootstrap-1.0.0-SNAPSHOT.jar 文件
     - _需求: 17.2, 17.5_
 
-- [ ] 10. 创建配置文件
-  - [ ] 10.1 创建 application.yml
+- [x] 10. 创建配置文件
+  - [x] 10.1 创建 application.yml
     - 创建主配置文件 application.yml
     - 配置应用名称、端口、Actuator 端点、Prometheus 指标、日志级别
     - **验收标准**：
@@ -339,7 +339,7 @@
         - logging.level.com.catface.order: DEBUG
     - _需求: 10.11, 13.4, 13.5, 16.4_
   
-  - [ ] 10.2 创建 bootstrap.yml
+  - [x] 10.2 创建 bootstrap.yml
     - 创建 bootstrap 配置文件
     - 配置应用名称和配置中心开关（spring.cloud.config.enabled: false）
     - **验收标准**：
@@ -349,30 +349,33 @@
         - spring.cloud.config.enabled: false
     - _需求: 10.12_
   
-  - [ ] 10.3 创建多环境配置文件
-    - 创建多环境配置文件（dev、test、prod）
+  - [x] 10.3 创建多环境配置文件
+    - 创建多环境配置文件（local、dev、test、staging、prod）
     - **验收标准**：
-      - 确认存在 3 个文件：application-dev.yml、application-test.yml、application-prod.yml
-      - 检查 application-dev.yml，确认日志级别为 DEBUG，数据库连接池大小为 5
-      - 检查 application-prod.yml，确认日志级别为 WARN/INFO，数据库连接池大小为 20
-    - _需求: 16.1, 16.2, 16.3_
+      - 确认存在 5 个文件：application-local.yml、application-dev.yml、application-test.yml、application-staging.yml、application-prod.yml
+      - 检查 application-local.yml，确认日志级别配置：com.catface 包为 DEBUG，其他包为 INFO
+      - 检查 application-dev.yml，确认日志级别配置：com.catface 包为 DEBUG，其他包为 INFO，数据库连接池大小为 5
+      - 检查 application-test.yml，确认日志级别配置与 dev 环境一致
+      - 检查 application-staging.yml，确认日志级别配置与 dev 环境一致
+      - 检查 application-prod.yml，确认日志级别配置：所有包为 INFO，数据库连接池大小为 20
+    - _需求: 16.1, 16.2, 16.3, 16.4, 16.5_
   
-  - [ ] 10.4 创建 logback-spring.xml
-    - 创建 Logback 配置文件，支持 JSON 格式和链路追踪
-    - 配置 LogstashEncoder，包含 traceId 和 spanId
+  - [x] 10.4 创建 logback-spring.xml
+    - 创建 Logback 配置文件，支持多环境差异化日志配置、JSON 格式和链路追踪
+    - 使用 `<springProfile>` 标签区分不同环境的日志配置
     - **验收标准**：
       - 确认存在文件：bootstrap/src/main/resources/logback-spring.xml
       - 检查 logback-spring.xml，确认包含以下配置：
-        - appender name="CONSOLE"，class="ch.qos.logback.core.ConsoleAppender"
-        - encoder class="net.logstash.logback.encoder.LogstashEncoder"
-        - includeMdcKeyName: traceId 和 spanId
-        - customFields: {"application":"order-service"}
-        - fieldNames 映射：timestamp、message、logger、thread、level、stackTrace
-        - root logger level: INFO
-        - com.catface.order logger level: DEBUG
-    - _需求: 11.4, 11.5_
+        - 定义 CONSOLE appender（默认格式，带颜色）和 JSON_FILE appender（JSON 格式）
+        - JSON_FILE appender 使用 LogstashEncoder，包含 traceId、spanId、application 字段
+        - 配置日志文件路径为 logs/application.log，按日期和大小滚动（100MB）
+        - 使用 `<springProfile name="local">` 配置本地环境：输出到 CONSOLE，com.catface 包 DEBUG，其他包 INFO
+        - 使用 `<springProfile name="dev,test,staging">` 配置非生产环境：输出到 JSON_FILE，com.catface 包 DEBUG，其他包 INFO，保留 30 天
+        - 使用 `<springProfile name="prod">` 配置生产环境：输出到 JSON_FILE，所有包 INFO，保留 90 天
+        - 配置异步日志输出（AsyncAppender），队列大小 512，丢弃阈值 0
+    - _需求: 11.4, 11.5, 11.6, 11.7, 11.8, 11.9, 11.10, 11.11_
 
-- [ ] 11. 验证应用启动和基础功能
+- [x] 11. 验证应用启动和基础功能
   - 启动应用，验证日志输出、端口监听、Actuator 端点、Prometheus 指标、JSON 日志格式
   - **验收标准**：
     - 运行 `mvn spring-boot:run -pl bootstrap`，应用成功启动
@@ -385,16 +388,24 @@
     - 按 Ctrl+C 停止应用
   - _需求: 10.14, 10.15, 11.6, 13.6, 13.7_
 
-- [ ] 12. 验证多环境配置
-  - 使用不同的 profile 启动应用，验证配置文件加载
+- [ ] 12. 验证多环境配置和日志输出
+  - 使用不同的 profile 启动应用，验证配置文件加载和日志输出格式
   - **验收标准**：
-    - 运行 `mvn spring-boot:run -pl bootstrap -Dspring-boot.run.arguments=--spring.profiles.active=test`，应用成功启动
-    - 检查控制台日志，确认包含 "The following profiles are active: test"
+    - 运行 `mvn spring-boot:run -pl bootstrap -Dspring-boot.run.arguments=--spring.profiles.active=local`，应用成功启动
+    - 检查控制台日志，确认包含 "The following profiles are active: local"
+    - 检查控制台日志，确认为默认格式（带颜色），不是 JSON 格式
+    - 检查控制台日志，确认 com.catface 包日志级别为 DEBUG（有 DEBUG 级别日志输出）
+    - 按 Ctrl+C 停止应用
+    - 运行 `mvn spring-boot:run -pl bootstrap -Dspring-boot.run.arguments=--spring.profiles.active=dev`，应用成功启动
+    - 检查控制台日志，确认包含 "The following profiles are active: dev"
+    - 检查 logs/application.log 文件，确认日志为 JSON 格式，包含 traceId、spanId、application 字段
+    - 检查 logs/application.log 文件，确认 com.catface 包日志级别为 DEBUG
     - 按 Ctrl+C 停止应用
     - 运行 `mvn spring-boot:run -pl bootstrap -Dspring-boot.run.arguments=--spring.profiles.active=prod`，应用成功启动
     - 检查控制台日志，确认包含 "The following profiles are active: prod"
+    - 检查 logs/application.log 文件，确认日志为 JSON 格式，所有包日志级别为 INFO（无 DEBUG 级别日志）
     - 按 Ctrl+C 停止应用
-  - _需求: 16.5, 16.6_
+  - _需求: 11.6, 11.7, 11.8, 16.7, 16.8, 16.11_
 
 - [ ] 13. 创建测试控制器验证异常处理
   - [ ] 13.1 创建 HTTP 测试控制器

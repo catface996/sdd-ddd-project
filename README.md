@@ -1,58 +1,44 @@
-
-
 # Spec 开发最佳实践
+
+本文档提供 Spec 开发流程的概览和最佳实践指引。
+
+## 通用最佳实践
+
+所有阶段都应遵守的通用原则和最佳实践，包括渐进式开发、持续验证、质量保证、风险管理等。
+
+详见：[00-general-best-practices.md](.kiro/steering/00-general-best-practices.md)
 
 ## 核心原则
 
 **切勿一次性完成所有阶段** - LLM 是概率模型，需要通过多次自检和双向验证来确保质量。
 
-## 需求阶段（Requirements）
+## 开发流程
 
-### 1. 准备原始需求文档
-- 在创建 Spec 之前，先准备详细的需求文档（如 project-architecture-design.md）
-- 使用该文档作为创建 Spec 的输入
+Spec 开发遵循以下四个阶段，每个阶段都有详细的最佳实践指导：
 
-### 2. 需求完整性验证
-需求创建完成后，不要立即进入设计阶段，而是让 Kiro 进行自检：
+### 1. 需求分析阶段（Requirements）
 
-**验证要点：**
-- 需求是否与原始意图一致？
-- 是否有需要澄清的内容？
-- 是否完全覆盖了原始意图？
-- 是否准确地覆盖了原始意图？
+准备原始需求文档，进行需求完整性验证，确保需求与原始意图一致。
 
-**示例提示词：**
-> "请检查需求是否与原始意图一致，任何需要澄清的需求点，请务必与我确认，确保需求足够完备，足够准确。"
+详见：[01-requirements-best-practices.md](.kiro/steering/01-requirements-best-practices.md)
 
-## 设计阶段（Design）
+### 2. 方案设计阶段（Design）
 
-### 3. 设计一致性验证
-设计完成后，让 Kiro 进行多维度自检：
+基于需求进行方案设计，验证设计与需求的一致性，避免过度设计。
 
-**验证要点：**
-- 设计文档与需求文档是否一致？
-- 设计内容内部是否有冲突？
-- 是否完全并准确地覆盖了需求？
-- 是否存在过度设计的内容？
+详见：[02-design-best-practices.md](.kiro/steering/02-design-best-practices.md)
 
-**示例提示词：**
-> "请再次检查设计文档与需求文档是一致的，并且设计自身的内容内部没有冲突，且能完全并准确的覆盖需求。"
+### 3. 任务拆分阶段（Tasks Planning）
 
-> "请检查设计中，是否有需求未提及的内容，属于过度设计的内容？如果有，请与我确认，是否补充和完善需求。"
+将设计转化为可执行的任务列表，确保任务的可执行性和可验证性。
 
-## 任务阶段（Tasks）
+详见：[03-tasks-planning-best-practices.md](.kiro/steering/03-tasks-planning-best-practices.md)
 
-### 4. 任务列表验证
-任务列表创建后，进行全面检查：
+### 4. 任务执行阶段（Tasks Execution）
 
-**验证要点：**
-- 任务列表是否与需求和设计一致？
-- 是否有超出设计范围的任务？
-- 每个任务的验证标准是否明确？
-- 任务是否可以被有效验证？
+执行具体任务，保持项目持续可编译，采用渐进式模块声明策略。
 
-**示例提示词：**
-> "请检查任务列表是否与需求和设计一致，是否有超出设计范围的任务。另外，请明确每个任务的验证标准，并对任务进行验证。"
+详见：[04-tasks-execution-best-practices.md](.kiro/steering/04-tasks-execution-best-practices.md)
 
 ## 关键收益
 
@@ -61,109 +47,23 @@
 - ✅ 确保任务可执行性
 - ✅ 提高最终交付质量
 - ✅ 减少返工成本
-
----
-
-# 任务执行最佳实践
-
-## 核心原则：保持项目持续可编译
-
-每个任务完成后，必须确保整个项目可以成功编译通过。这是持续集成的基本要求，确保项目始终处于健康状态。
-
-## 模块声明的渐进式管理策略
-
-### 问题场景
-在多模块 Maven 项目中，如果在父 POM 中预先声明了所有子模块，但这些模块尚未创建，会导致编译失败：
-```
-[ERROR] Child module /path/to/module does not exist
-```
-
-### 解决方案：渐进式模块声明
-
-#### 1. 只声明已创建的模块
-- 在父 POM 的 `<modules>` 节中，只包含已经实际创建的模块
-- 不要预先声明计划中但尚未创建的模块
-
-#### 2. 创建模块时同步更新父 POM
-- 每创建一个新模块后，立即在父 POM 中添加该模块的声明
-- 确保模块声明与实际目录结构保持同步
-
-#### 3. 多层级模块的处理
-- 对于有子模块的父模块（如 infrastructure），同样遵循此原则
-- 父模块的 `<modules>` 节也应该只声明已创建的子模块
-
-### 实施步骤
-
-1. **确认当前状态**：检查父 POM 中只包含已创建的模块
-2. **创建新模块**：创建模块目录和 pom.xml 文件
-3. **更新父 POM**：在父 POM 的 modules 节中添加新模块声明
-4. **验证编译**：运行 `mvn clean compile` 确保构建成功
-
-### 验证标准
-
-每个任务完成后，必须执行以下验证：
-
-```bash
-# 1. 清理并编译整个项目
-mvn clean compile
-
-# 2. 确认构建成功
-# 输出应包含：BUILD SUCCESS
-# 不应有任何 ERROR 信息
-
-# 3. 检查所有模块都被正确构建
-# Reactor Build Order 应列出所有已声明的模块
-```
-
-### 示例：infrastructure 模块创建
-
-**任务：创建 infrastructure 基础设施层父模块**
-
-1. 创建 infrastructure/pom.xml
-2. 暂时不声明子模块（repository、cache、mq 尚未创建）
-3. 在根 pom.xml 中添加 infrastructure 模块声明
-4. 运行 `mvn clean compile` 验证成功
-
-**infrastructure/pom.xml 初始内容：**
-```xml
-<project>
-    <parent>
-        <groupId>com.catface.com</groupId>
-        <artifactId>order-service</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </parent>
-    
-    <artifactId>infrastructure</artifactId>
-    <packaging>pom</packaging>
-    
-    <!-- 暂时不声明子模块 -->
-    <!-- 等 repository、cache、mq 创建后再添加 -->
-</project>
-```
-
-**后续创建 repository 模块时：**
-```xml
-<project>
-    <artifactId>infrastructure</artifactId>
-    <packaging>pom</packaging>
-    
-    <modules>
-        <module>repository</module>  <!-- 新增 -->
-    </modules>
-</project>
-```
-
-### 关键收益
-
 - ✅ 项目始终处于可编译状态
-- ✅ 便于持续集成和自动化测试
-- ✅ 及时发现配置错误和依赖问题
 - ✅ 支持增量开发和迭代交付
-- ✅ 降低后期集成风险
 
-### 注意事项
+## 快速参考
 
-1. 不要一次性声明所有计划中的模块
-2. 每次修改 POM 后都要验证编译
-3. 保持模块声明顺序与依赖关系一致
-4. 对于父模块，先创建父 POM，再逐步添加子模块
+### 需求阶段验证提示词
+> "请检查需求是否与原始意图一致，任何需要澄清的需求点，请务必与我确认，确保需求足够完备，足够准确。"
+
+### 设计阶段验证提示词
+> "请再次检查设计文档与需求文档是一致的，并且设计自身的内容内部没有冲突，且能完全并准确的覆盖需求。"
+
+> "请检查设计中，是否有需求未提及的内容，属于过度设计的内容？如果有，请与我确认，是否补充和完善需求。"
+
+### 任务拆分验证提示词
+> "请检查任务列表是否与需求和设计一致，是否有超出设计范围的任务。另外，请明确每个任务的验证标准，并对任务进行验证。"
+
+### 任务执行验证命令
+```bash
+mvn clean compile
+```

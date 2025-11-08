@@ -1,0 +1,17 @@
+spring:
+  config:
+    activate:
+      on-profile: staging
+  datasource:
+    url: jdbc:mysql://staging-db:3306/order_staging
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  data:
+    redis:
+      host: staging-redis
+      port: 6379
+
+aws:
+  sqs:
+    endpoint: https://sqs.us-east-1.amazonaws.com
+    region: us-east-1

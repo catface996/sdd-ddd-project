@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.catface.order</groupId>
+        <artifactId>domain</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>domain-impl</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Domain Implementation</name>
+    <description>Domain layer implementation module - implements domain services and business logic</description>
+
+    <dependencies>
+        <!-- Domain API -->
+        <dependency>
+            <groupId>com.catface.order</groupId>
+            <artifactId>domain-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Repository API -->
+        <dependency>
+            <groupId>com.catface.order</groupId>
+            <artifactId>repository-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Cache API -->
+        <dependency>
+            <groupId>com.catface.order</groupId>
+            <artifactId>cache-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- MQ API -->
+        <dependency>
+            <groupId>com.catface.order</groupId>
+            <artifactId>mq-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Common Module -->
+        <dependency>
+            <groupId>com.catface.order</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>

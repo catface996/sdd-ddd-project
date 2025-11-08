@@ -1,0 +1,17 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/order_dev
+    username: dev_user
+    password: dev_password
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+aws:
+  sqs:
+    endpoint: http://localhost:4566
+    region: us-east-1

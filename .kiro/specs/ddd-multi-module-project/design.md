@@ -219,7 +219,7 @@ infrastructure/pom.xml 作为基础设施层的父模块，仅用于组织子模
 <project>
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.catface.com</groupId>
+        <groupId>com.catface.order</groupId>
         <artifactId>order-service</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -242,7 +242,7 @@ infrastructure/pom.xml 作为基础设施层的父模块，仅用于组织子模
 ```xml
 <project>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.catface.com</groupId>
+    <groupId>com.catface.order</groupId>
     <artifactId>order-service</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>

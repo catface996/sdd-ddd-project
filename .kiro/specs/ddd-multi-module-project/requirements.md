@@ -34,7 +34,7 @@
 
 #### 验收标准
 
-1. THE System SHALL 在项目根目录创建 pom.xml 文件，其 groupId 为 "com.catface.com"，artifactId 为 "order-service"，packaging 类型为 "pom"
+1. THE System SHALL 在项目根目录创建 pom.xml 文件，其 groupId 为 "com.catface.order"，artifactId 为 "order-service"，packaging 类型为 "pom"
 2. THE System SHALL 创建以下模块目录结构：common、bootstrap、traffic、traffic/http、traffic/consumer、application、application/application-api、application/application-impl、domain、domain/domain-api、domain/domain-impl、infrastructure、infrastructure/repository、infrastructure/cache、infrastructure/mq
 3. THE System SHALL 在 infrastructure/repository 目录下创建 repository-api 和 mysql-impl 子模块目录
 4. THE System SHALL 在 infrastructure/cache 目录下创建 cache-api 和 redis-impl 子模块目录
@@ -60,8 +60,8 @@
 #### 验收标准
 
 1. THE System SHALL 创建 traffic/pom.xml 文件，packaging 类型为 "pom"，modules 列表包含 "http" 和 "consumer"
-2. THE traffic/http/pom.xml SHALL 声明对 "application-api"（groupId 为 "com.catface.com"）和 "common"（groupId 为 "com.catface.com"）的依赖
-3. THE traffic/consumer/pom.xml SHALL 声明对 "application-api"（groupId 为 "com.catface.com"）和 "common"（groupId 为 "com.catface.com"）的依赖
+2. THE traffic/http/pom.xml SHALL 声明对 "application-api"（groupId 为 "com.catface.order"）和 "common"（groupId 为 "com.catface.order"）的依赖
+3. THE traffic/consumer/pom.xml SHALL 声明对 "application-api"（groupId 为 "com.catface.order"）和 "common"（groupId 为 "com.catface.order"）的依赖
 4. THE traffic/http/pom.xml SHALL 包含 spring-boot-starter-web 和 spring-boot-starter-validation 依赖
 5. THE traffic/http/pom.xml SHALL NOT 包含任何基础设施实现依赖（mysql-impl、redis-impl、sqs-impl）
 
@@ -72,8 +72,8 @@
 #### 验收标准
 
 1. THE System SHALL 创建 application/pom.xml 文件，packaging 类型为 "pom"，modules 列表包含 "application-api" 和 "application-impl"
-2. THE application/application-api/pom.xml SHALL 仅声明对 "common"（groupId 为 "com.catface.com"）的依赖
-3. THE application/application-impl/pom.xml SHALL 声明对 "application-api"、"domain-api" 和 "common" 的依赖，所有 groupId 均为 "com.catface.com"
+2. THE application/application-api/pom.xml SHALL 仅声明对 "common"（groupId 为 "com.catface.order"）的依赖
+3. THE application/application-impl/pom.xml SHALL 声明对 "application-api"、"domain-api" 和 "common" 的依赖，所有 groupId 均为 "com.catface.order"
 4. THE application/application-impl/pom.xml SHALL NOT 包含对 mysql-impl、redis-impl 或 sqs-impl 的依赖
 5. THE application/application-api/pom.xml SHALL NOT 包含任何 Spring Boot starter 依赖
 
@@ -84,8 +84,8 @@
 #### 验收标准
 
 1. THE System SHALL 创建 domain/pom.xml 文件，packaging 类型为 "pom"，modules 列表包含 "domain-api" 和 "domain-impl"
-2. THE domain/domain-api/pom.xml SHALL 仅声明对 "common"（groupId 为 "com.catface.com"）的依赖
-3. THE domain/domain-impl/pom.xml SHALL 声明对 "domain-api"、"repository-api"、"cache-api"、"mq-api" 和 "common" 的依赖，所有 groupId 均为 "com.catface.com"
+2. THE domain/domain-api/pom.xml SHALL 仅声明对 "common"（groupId 为 "com.catface.order"）的依赖
+3. THE domain/domain-impl/pom.xml SHALL 声明对 "domain-api"、"repository-api"、"cache-api"、"mq-api" 和 "common" 的依赖，所有 groupId 均为 "com.catface.order"
 4. THE domain/domain-impl/pom.xml SHALL NOT 包含对 mysql-impl、redis-impl 或 sqs-impl 的依赖
 5. THE domain/domain-api/pom.xml SHALL NOT 包含任何基础设施依赖
 
@@ -96,8 +96,8 @@
 #### 验收标准
 
 1. THE System SHALL 创建 infrastructure/repository/pom.xml 文件，packaging 类型为 "pom"，modules 列表包含 "repository-api" 和 "mysql-impl"
-2. THE infrastructure/repository/repository-api/pom.xml SHALL 仅声明对 "common"（groupId 为 "com.catface.com"）的依赖
-3. THE infrastructure/repository/mysql-impl/pom.xml SHALL 声明对 "repository-api" 和 "common" 的依赖，groupId 均为 "com.catface.com"
+2. THE infrastructure/repository/repository-api/pom.xml SHALL 仅声明对 "common"（groupId 为 "com.catface.order"）的依赖
+3. THE infrastructure/repository/mysql-impl/pom.xml SHALL 声明对 "repository-api" 和 "common" 的依赖，groupId 均为 "com.catface.order"
 4. THE infrastructure/repository/mysql-impl/pom.xml SHALL 包含 mybatis-plus-boot-starter 依赖
 5. THE infrastructure/repository/mysql-impl/pom.xml SHALL 包含 mysql-connector-j 依赖，scope 为 "runtime"
 
@@ -108,8 +108,8 @@
 #### 验收标准
 
 1. THE System SHALL 创建 infrastructure/cache/pom.xml 文件，packaging 类型为 "pom"，modules 列表包含 "cache-api" 和 "redis-impl"
-2. THE infrastructure/cache/cache-api/pom.xml SHALL 仅声明对 "common"（groupId 为 "com.catface.com"）的依赖
-3. THE infrastructure/cache/redis-impl/pom.xml SHALL 声明对 "cache-api" 和 "common" 的依赖，groupId 均为 "com.catface.com"
+2. THE infrastructure/cache/cache-api/pom.xml SHALL 仅声明对 "common"（groupId 为 "com.catface.order"）的依赖
+3. THE infrastructure/cache/redis-impl/pom.xml SHALL 声明对 "cache-api" 和 "common" 的依赖，groupId 均为 "com.catface.order"
 4. THE infrastructure/cache/redis-impl/pom.xml SHALL 包含 jedis 依赖
 5. THE infrastructure/cache/cache-api/pom.xml SHALL NOT 包含任何第三方缓存库依赖
 
@@ -120,8 +120,8 @@
 #### 验收标准
 
 1. THE System SHALL 创建 infrastructure/mq/pom.xml 文件，packaging 类型为 "pom"，modules 列表包含 "mq-api" 和 "sqs-impl"
-2. THE infrastructure/mq/mq-api/pom.xml SHALL 仅声明对 "common"（groupId 为 "com.catface.com"）的依赖
-3. THE infrastructure/mq/sqs-impl/pom.xml SHALL 声明对 "mq-api" 和 "common" 的依赖，groupId 均为 "com.catface.com"
+2. THE infrastructure/mq/mq-api/pom.xml SHALL 仅声明对 "common"（groupId 为 "com.catface.order"）的依赖
+3. THE infrastructure/mq/sqs-impl/pom.xml SHALL 声明对 "mq-api" 和 "common" 的依赖，groupId 均为 "com.catface.order"
 4. THE infrastructure/mq/sqs-impl/pom.xml SHALL 包含 aws-java-sdk-sqs 依赖，版本为 1.12.x
 5. THE infrastructure/mq/mq-api/pom.xml SHALL NOT 包含任何 AWS SDK 依赖
 
@@ -131,7 +131,7 @@
 
 #### 验收标准
 
-1. THE bootstrap/pom.xml SHALL 声明对 "http"、"consumer"、"application-impl"、"domain-impl"、"mysql-impl"、"redis-impl"、"sqs-impl" 和 "common" 的依赖，所有 groupId 均为 "com.catface.com"
+1. THE bootstrap/pom.xml SHALL 声明对 "http"、"consumer"、"application-impl"、"domain-impl"、"mysql-impl"、"redis-impl"、"sqs-impl" 和 "common" 的依赖，所有 groupId 均为 "com.catface.order"
 2. THE bootstrap/pom.xml SHALL 包含 spring-boot-starter 依赖
 3. THE bootstrap/pom.xml SHALL 配置 spring-boot-maven-plugin 插件，包含 repackage goal
 4. THE bootstrap Module SHALL 包含一个名为 "OrderServiceApplication" 的 Java 类，位于包 "com.catface.com.orderservice" 中，带有 @SpringBootApplication 注解和 main 方法
@@ -193,7 +193,7 @@
 
 1. THE System SHALL 创建 infrastructure/pom.xml 文件，packaging 类型为 "pom"
 2. THE infrastructure/pom.xml SHALL 在 modules 节中声明 "repository"、"cache" 和 "mq"
-3. THE infrastructure/pom.xml SHALL 包含对根 pom 的父引用，groupId 为 "com.catface.com"，artifactId 为 "order-service"
+3. THE infrastructure/pom.xml SHALL 包含对根 pom 的父引用，groupId 为 "com.catface.order"，artifactId 为 "order-service"
 4. THE infrastructure/pom.xml SHALL 的 artifactId 为 "infrastructure"
 5. THE infrastructure/pom.xml SHALL NOT 声明任何依赖
 

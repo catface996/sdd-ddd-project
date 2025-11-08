@@ -206,26 +206,106 @@ project-root/
 ### 11.2 实现要求
 - 通用模块应提供异常基类和常见异常类型
 - HTTP 接口层应实现全局异常处理器，捕获并转换异常为标准响应
+- Consumer 接口层应实现全局异常处理器，捕获并记录异常日志
 - 异常信息应包含错误码、错误消息、时间戳等关键信息
 - 避免向外部暴露系统内部实现细节
 
+### 11.3 异常传播策略
+
+异常在各层之间的传播遵循以下规则：
+
+```
+Controller/Consumer → Application Service → Domain Service → Repository
+       ↓                    ↓                    ↓               ↓
+  捕获并转换            抛出业务异常          抛出业务异常    抛出系统异常
+  为 Result/日志      (BusinessException)  (BusinessException) (SystemException)
+```
+
+**各层异常处理职责**：
+
+| 层级 | 异常处理职责 | 说明 |
+|------|------------|------|
+| **接口层（HTTP）** | 捕获所有异常，转换为统一的 Result 响应 | 使用 @RestControllerAdvice 全局异常处理器 |
+| **接口层（Consumer）** | 捕获所有异常，记录日志并根据业务决定是否重试 | 使用 @ControllerAdvice 全局异常处理器 |
+| **应用层** | 抛出 BusinessException，不处理异常 | 业务逻辑错误抛出业务异常 |
+| **领域层** | 抛出 BusinessException，不处理异常 | 领域规则违反抛出业务异常 |
+| **基础设施层** | 捕获技术异常，转换为 SystemException | 数据库、缓存、MQ 等技术异常转换为系统异常 |
+
 ---
 
-## 十二、需求文档编写规范
+## 十二、多环境配置
+
+### 12.1 配置文件结构
+
+系统支持多环境配置，通过 Spring Profiles 机制实现环境隔离。
+
+**配置文件清单**：
+- `application.yml`：通用配置（所有环境共享）
+- `application-dev.yml`：开发环境配置
+- `application-test.yml`：测试环境配置
+- `application-prod.yml`：生产环境配置
+- `bootstrap.yml`：引导配置（用于配置中心）
+
+### 12.2 环境激活
+
+**通过配置文件激活**：
+```yaml
+# application.yml
+spring:
+  profiles:
+    active: dev  # 默认激活开发环境
+```
+
+**通过命令行激活**：
+```bash
+# 启动开发环境
+java -jar app.jar --spring.profiles.active=dev
+
+# 启动生产环境
+java -jar app.jar --spring.profiles.active=prod
+```
+
+**通过环境变量激活**：
+```bash
+export SPRING_PROFILES_ACTIVE=prod
+java -jar app.jar
+```
+
+### 12.3 环境配置差异
+
+不同环境的配置差异主要体现在：
+
+| 配置项 | 开发环境 | 测试环境 | 生产环境 |
+|--------|---------|---------|---------|
+| 日志级别 | DEBUG | INFO | WARN |
+| 数据库连接池大小 | 5 | 10 | 20 |
+| 缓存过期时间 | 短 | 中 | 长 |
+| 监控指标采集频率 | 低 | 中 | 高 |
+
+### 12.4 配置优先级
+
+配置加载优先级（从高到低）：
+1. 命令行参数
+2. 环境变量
+3. application-{profile}.yml
+4. application.yml
+5. bootstrap.yml
+
+## 十三、需求文档编写规范
 
 ### 12.1 语言要求
 - 需求文档的验收标准必须使用中文表述
 - EARS 语法关键字（THE、SHALL、WHEN、WHILE、IF、THEN、WHERE）必须保留英文大写
 - 示例：THE System SHALL 创建一个父 POM 文件，其 groupId 为 "com.catface.com"
 
-### 12.2 需要用户额外补充的信息
+### 13.2 需要用户额外补充的信息
 请在创建需求时，务必与用户澄清以下要补充的信息，确认无误后，再进入下一步
 * 系统名称
 
-## 十三、实现过程要求
+## 十四、实现过程要求
 -  每执行完成一个任务，都要求整个工程都可以被编译通过
 
-## 十四、验收原则
+## 十五、验收原则
 
 ### 14.1 验收优先级
 验收应遵循以下优先级顺序：

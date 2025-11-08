@@ -37,7 +37,7 @@ project-root/
 │
 ├── bootstrap/                           # 启动模块
 │
-├── traffic/                             # 接口层
+├── interface/                           # 接口层
 │   ├── http/                            # 提供 HTTP API
 │   └── consumer/                        # 消费消息队列
 │
@@ -71,8 +71,8 @@ project-root/
 |------|------|----------|
 | **通用层** | `common` | 提供项目通用工具类、枚举、异常定义、通用DTO等。 |
 | **启动层** | `bootstrap` | 系统启动入口，负责加载配置、装配依赖、启动Spring上下文。 |
-| **接口层** | `traffic/http` | 处理外部HTTP请求，进行参数校验与输入输出转换。 |
-|  | `traffic/consumer` | 接收并处理来自消息队列的事件或异步任务。 |
+| **接口层** | `interface/http` | 处理外部HTTP请求，进行参数校验与输入输出转换。 |
+|  | `interface/consumer` | 接收并处理来自消息队列的事件或异步任务。 |
 | **应用层** | `application-api` | 定义应用服务接口、DTO、Command、Query对象。 |
 |  | `application-impl` | 实现业务用例编排，协调领域层完成业务逻辑。 |
 | **领域层** | `domain-api` | 定义领域模型、聚合、实体、值对象、仓储接口、领域事件。 |
@@ -91,8 +91,8 @@ project-root/
 | 模块 | 依赖 |
 |------|------|
 | **bootstrap** | http, consumer, application-impl, domain-impl, mysql-impl, redis-impl, sqs-impl, common |
-| **traffic/http** | application-api, common |
-| **traffic/consumer** | application-api, common |
+| **interface/http** | application-api, common |
+| **interface/consumer** | application-api, common |
 | **application-impl** | application-api, domain-api, common |
 | **domain-impl** | domain-api, repository-api, cache-api, mq-api, common |
 | **mysql-impl** | repository-api, common |

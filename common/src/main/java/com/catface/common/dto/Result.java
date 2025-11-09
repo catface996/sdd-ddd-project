@@ -14,7 +14,7 @@ import lombok.Data;
 public class Result<T> {
 
     /**
-     * 响应码，成功为 "0000"，失败为具体错误码
+     * 响应码，成功为 "0000"
      */
     private String code;
 
@@ -34,16 +34,26 @@ public class Result<T> {
     private Long timestamp;
 
     /**
+     * 成功响应码
+     */
+    private static final String SUCCESS_CODE = "0000";
+
+    /**
+     * 成功响应消息
+     */
+    private static final String SUCCESS_MESSAGE = "操作成功";
+
+    /**
      * 创建成功响应
      *
      * @param data 响应数据
      * @param <T>  数据类型
-     * @return 成功响应
+     * @return 成功响应对象
      */
     public static <T> Result<T> success(T data) {
         return Result.<T>builder()
-                .code("0000")
-                .message("Success")
+                .code(SUCCESS_CODE)
+                .message(SUCCESS_MESSAGE)
                 .data(data)
                 .timestamp(System.currentTimeMillis())
                 .build();
@@ -53,7 +63,7 @@ public class Result<T> {
      * 创建成功响应（无数据）
      *
      * @param <T> 数据类型
-     * @return 成功响应
+     * @return 成功响应对象
      */
     public static <T> Result<T> success() {
         return success(null);
@@ -65,7 +75,7 @@ public class Result<T> {
      * @param code    错误码
      * @param message 错误消息
      * @param <T>     数据类型
-     * @return 错误响应
+     * @return 错误响应对象
      */
     public static <T> Result<T> error(String code, String message) {
         return Result.<T>builder()

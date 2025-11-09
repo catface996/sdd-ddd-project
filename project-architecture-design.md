@@ -23,7 +23,7 @@
 | **单向依赖** | 外层依赖内层，内层永不反向依赖。 |
 | **可替换性** | 各技术实现模块可独立替换，不影响上层逻辑。 |
 | **轻量与扩展性** | 模块拆分合理，支持独立开发与微服务化演进。 |
-| **统一依赖管理** | 通过父 POM 统一 Spring、MyBatis-Plus、Jedis 等版本。 |
+| **统一依赖管理** | 通过父 POM 统一 Spring、MyBatis-Plus 等版本。 |
 
 ---
 
@@ -56,7 +56,7 @@ project-root/
     │
     ├── cache/
     │   ├── cache-api/                   # 缓存接口定义
-    │   └── redis-impl/                  # 基于 Jedis 的实现
+    │   └── redis-impl/                  # 基于 Lettuce（Spring Data Redis）的实现
     │
     └── mq/
         ├── mq-api/                      # 消息队列接口定义
@@ -80,7 +80,7 @@ project-root/
 | **基础设施层** | `repository-api` | 定义数据持久化抽象接口。 |
 |  | `mysql-impl` | 基于 MyBatis-Plus 的 MySQL 实现。 |
 |  | `cache-api` | 定义缓存访问接口。 |
-|  | `redis-impl` | 基于 Jedis 的 Redis 实现。 |
+|  | `redis-impl` | 基于 Lettuce（Spring Data Redis）的 Redis 实现。 |
 |  | `mq-api` | 定义消息通信抽象接口。 |
 |  | `sqs-impl` | 基于 AWS SQS 的消息实现。 |
 
@@ -107,9 +107,9 @@ project-root/
 |------|------|------|
 | **JDK 21** | 开发语言环境 | 使用 LTS 版本 |
 | **Spring Boot 3.3.x** | 应用基础框架 | 配置驱动、依赖注入、服务运行 |
-| **Spring Cloud 2024.0.x（Leyton）** | 微服务框架 | 提供注册发现、配置中心、调用链、负载均衡 |
+| **Spring Cloud 2024.0.x（Leyton）** | 微服务框架 | 预留微服务生态支持，当前阶段仅使用链路追踪功能 |
 | **MyBatis-Plus 3.5.x** | ORM 框架 | 简化 CRUD，增强 MyBatis 功能 |
-| **Spring Boot Starter Jedis** | Redis 客户端 | 负责缓存访问逻辑 |
+| **Spring Boot Starter Data Redis (Lettuce)** | Redis 客户端 | 使用 Spring Boot 官方推荐的 Lettuce 客户端负责缓存访问逻辑 |
 | **Spring Validation / Web** | 参数验证和 HTTP 支持 | 用于接口层 |
 | **Lombok** | 代码简化 | 自动生成 getter/setter |
 | **Spring Boot Test / JUnit 5** | 测试框架 | 单元测试与集成测试 |
@@ -129,7 +129,7 @@ project-root/
 2. 父 POM 在 `<dependencyManagement>` 中统一声明：
    - Spring Boot BOM（Bill of Materials）：通过 `spring-boot-dependencies` 导入
    - Spring Cloud BOM：通过 `spring-cloud-dependencies` 导入
-   - 第三方库版本：MyBatis-Plus、Jedis、AWS SDK 等
+   - 第三方库版本：MyBatis-Plus、AWS SDK for SQS 等
    - 通用工具库：Lombok、JUnit、Logback 等
 3. 子模块在 `<dependencies>` 中声明依赖时，仅指定 `groupId` 和 `artifactId`，不指定 `version`
 4. 特殊情况下需要覆盖版本时，在子模块中显式声明版本号
@@ -254,7 +254,8 @@ logs/
 2. 在 `logback-spring.xml` 中使用 `<springProfile>` 标签区分不同环境
 3. JSON 格式使用 `logstash-logback-encoder` 依赖实现
 4. 确保所有环境的日志都包含 traceId 和 spanId 字段
-5. 生产环境必须配置异步日志输出，避免影响应用性能
+5. 生产环境必须配置异步日志输出（AsyncAppender），避免影响应用性能
+6. 错误日志（ERROR 级别）必须单独输出到 error.log 文件，便于快速定位问题
 
 ---
 
@@ -304,10 +305,12 @@ Controller/Consumer → Application Service → Domain Service → Repository
 
 **配置文件清单**：
 - `application.yml`：通用配置（所有环境共享）
+- `application-local.yml`：本地开发环境配置
 - `application-dev.yml`：开发环境配置
 - `application-test.yml`：测试环境配置
+- `application-staging.yml`：预发布环境配置
 - `application-prod.yml`：生产环境配置
-- `bootstrap.yml`：引导配置（用于配置中心）
+- `bootstrap.yml`：引导配置（预留用于配置中心）
 
 ### 12.2 环境激活
 
@@ -338,15 +341,19 @@ java -jar app.jar
 
 不同环境的配置差异主要体现在：
 
-| 配置项 | 本地环境(local) | 开发环境(dev) | 测试环境(test) | 生产环境(prod) |
-|--------|----------------|--------------|---------------|---------------|
-| 日志输出目标 | 控制台 | 文件 | 文件 | 文件 |
-| 日志格式 | 默认格式 | JSON | JSON | JSON |
-| com.catface 包日志级别 | DEBUG | DEBUG | DEBUG | INFO |
-| 其他包日志级别 | INFO | INFO | INFO | INFO |
-| 数据库连接池大小 | 5 | 10 | 10 | 20 |
-| 缓存过期时间 | 短 | 中 | 中 | 长 |
-| 监控指标采集频率 | 低 | 中 | 中 | 高 |
+| 配置项 | 本地环境(local) | 开发环境(dev) | 测试环境(test) | 预发布环境(staging) | 生产环境(prod) |
+|--------|----------------|--------------|---------------|-------------------|---------------|
+| 日志输出目标 | 控制台 | 文件 | 文件 | 文件 | 文件 |
+| 日志格式 | 默认格式 | JSON | JSON | JSON | JSON |
+| com.catface 包日志级别 | DEBUG | DEBUG | DEBUG | DEBUG | INFO |
+| 其他包日志级别 | INFO | INFO | INFO | INFO | INFO |
+| 数据库连接池大小 | 5 | 10 | 10 | 15 | 20 |
+| 缓存过期时间 | 短 | 中 | 中 | 长 | 长 |
+| 监控指标采集频率 | 低 | 中 | 中 | 高 | 高 |
+
+**说明**：
+- 数据库连接池大小、缓存过期时间、监控指标采集频率等配置为示例性配置，实际值应根据具体业务需求和资源情况调整
+- 这些配置差异体现了不同环境的资源分配和性能要求的差异
 
 ### 12.4 配置优先级
 
@@ -408,6 +415,6 @@ java -jar app.jar
 - 完全遵循 DDD 分层原则；
 - 模块职责清晰、依赖单向；
 - 使用最新 Spring Cloud 技术栈；
-- 集成 MyBatis-Plus 与 Jedis；
+- 集成 MyBatis-Plus 与 Lettuce（Spring Data Redis）；
 - 支持链路追踪与结构化日志输出；
 - 提供多环境配置与未来微服务演进支持。

@@ -1,0 +1,291 @@
+# 实施计划
+
+## 任务列表
+
+- [x] 1.1 创建父 POM 并配置依赖管理
+  - 创建项目根 pom.xml，配置为多模块父 POM
+  - 配置 Java 21 编译环境和 Maven Compiler Plugin
+  - 配置 dependencyManagement 统一管理 Spring Boot、Spring Cloud 及第三方库版本
+  - **验收标准**：
+    - 执行 `mvn clean compile` 命令成功，输出 "BUILD SUCCESS"
+    - 检查 pom.xml 文件，确认 groupId 为 "com.catface"，artifactId 为 "order-core-parent"
+    - 确认 packaging 为 "pom"
+    - 确认 properties 中定义了 java.version=21
+    - 确认 dependencyManagement 中导入了 spring-boot-dependencies 和 spring-cloud-dependencies BOM
+  - _需求: 1.1, 1.2, 1.3, 1.4, 12.1, 12.2, 12.3_
+
+- [x] 2.1 创建 common 模块并实现异常体系和统一响应类
+  - 创建 common 模块，配置为 jar 类型
+  - 实现三层异常体系：BaseException（抽象）、BusinessException、SystemException
+  - 实现统一响应类 Result，支持成功和失败场景
+  - 创建标准包结构：exception、dto、constant、util
+  - **验收标准**：
+    - 执行 `mvn clean compile` 命令成功编译 common 模块
+    - 检查父 POM 的 modules 节，确认声明了 common 模块
+    - 检查 common/pom.xml，确认 packaging 为 "jar"，name 为 "Common"
+    - 确认添加了 Lombok 依赖且未指定版本
+    - 确认存在 BaseException.java（抽象类），包含 errorCode 和 message 字段
+    - 确认存在 BusinessException.java 和 SystemException.java，继承自 BaseException
+    - 确认存在 Result.java，包含 code、message、data、timestamp 字段和 success()、error() 静态方法
+    - 确认存在包目录：com/catface/common/exception、dto、constant、util
+  - _需求: 2.1, 2.2, 2.3, 2.4, 11.1, 11.2, 11.3, 1.6, 12.4_
+
+- [ ] 3.1 创建 application 层模块结构
+  - 创建 application 父模块（pom 类型）
+  - 创建 application-api 子模块，定义应用服务接口
+  - 创建 application-impl 子模块，实现应用服务
+  - 配置正确的模块依赖关系
+  - **验收标准**：
+    - 执行 `mvn clean compile` 命令成功编译 application 模块及其子模块
+    - 检查父 POM 的 modules 节，确认声明了 application 模块
+    - 检查 application/pom.xml，确认 packaging 为 "pom"，name 为 "Application"
+    - 检查 application/pom.xml 的 modules 节，确认声明了 application-api 和 application-impl
+    - 检查 application-api/pom.xml，确认 packaging 为 "jar"，name 为 "Application API"
+    - 检查 application-api/pom.xml，确认仅依赖 common 模块
+    - 检查 application-impl/pom.xml，确认依赖 application-api、domain-api、common 模块
+    - 确认存在包目录：com/catface/application/api 和 com/catface/application/impl
+  - _需求: 4.1, 4.2, 4.3, 4.4, 4.5, 1.6_
+
+- [ ] 4.1 创建 domain 层模块结构
+  - 创建 domain 父模块（pom 类型）
+  - 创建 domain-api 子模块，定义领域模型和仓储接口
+  - 创建 domain-impl 子模块，实现领域服务逻辑
+  - 配置正确的模块依赖关系
+  - **验收标准**：
+    - 执行 `mvn clean compile` 命令成功编译 domain 模块及其子模块
+    - 检查父 POM 的 modules 节，确认声明了 domain 模块
+    - 检查 domain/pom.xml，确认 packaging 为 "pom"，name 为 "Domain"
+    - 检查 domain/pom.xml 的 modules 节，确认声明了 domain-api 和 domain-impl
+    - 检查 domain-api/pom.xml，确认仅依赖 common 模块
+    - 检查 domain-impl/pom.xml，确认依赖 domain-api、repository-api、cache-api、mq-api、common 模块
+    - 确认存在包目录：com/catface/domain/api 和 com/catface/domain/impl
+  - _需求: 5.1, 5.2, 5.3, 5.4, 5.5, 1.6_
+
+- [ ] 5.1 创建 infrastructure 层 repository 模块
+  - 创建 infrastructure 父模块（pom 类型）
+  - 创建 repository 父模块（pom 类型）
+  - 创建 repository-api 子模块，定义仓储接口
+  - 创建 mysql-impl 子模块，实现 MyBatis-Plus 数据访问
+  - 配置正确的模块依赖关系
+  - **验收标准**：
+    - 执行 `mvn clean compile` 命令成功编译 infrastructure/repository 及其子模块
+    - 检查父 POM 的 modules 节，确认声明了 infrastructure 模块
+    - 检查 infrastructure/pom.xml，确认 packaging 为 "pom"，name 为 "Infrastructure"
+    - 检查 infrastructure/pom.xml 的 modules 节，确认声明了 repository、cache、mq
+    - 检查 repository/pom.xml，确认 packaging 为 "pom"，name 为 "Repository"
+    - 检查 repository/pom.xml 的 modules 节，确认声明了 repository-api 和 mysql-impl
+    - 检查 repository-api/pom.xml，确认仅依赖 common 模块
+    - 检查 mysql-impl/pom.xml，确认依赖 repository-api、common 模块和 MyBatis-Plus（未指定版本）
+    - 确认存在包目录：com/catface/infrastructure/repository/api 和 mysql
+  - _需求: 6.1, 6.2, 6.5, 6.8, 6.9, 12.5, 1.6_
+
+- [ ] 5.2 创建 infrastructure 层 cache 模块
+  - 创建 cache 父模块（pom 类型）
+  - 创建 cache-api 子模块，定义缓存接口
+  - 创建 redis-impl 子模块，实现 Redis 缓存
+  - 配置正确的模块依赖关系
+  - **验收标准**：
+    - 执行 `mvn clean compile` 命令成功编译 infrastructure/cache 及其子模块
+    - 检查 infrastructure/pom.xml 的 modules 节，确认声明了 cache
+    - 检查 cache/pom.xml，确认 packaging 为 "pom"，name 为 "Cache"
+    - 检查 cache/pom.xml 的 modules 节，确认声明了 cache-api 和 redis-impl
+    - 检查 cache-api/pom.xml，确认仅依赖 common 模块
+    - 检查 redis-impl/pom.xml，确认依赖 cache-api、common 模块和 Spring Data Redis（未指定版本）
+    - 确认存在包目录：com/catface/infrastructure/cache/api 和 redis
+  - _需求: 6.3, 6.6, 6.8, 6.9, 1.6_
+
+- [ ] 5.3 创建 infrastructure 层 mq 模块
+  - 创建 mq 父模块（pom 类型）
+  - 创建 mq-api 子模块，定义消息队列接口
+  - 创建 sqs-impl 子模块，实现 AWS SQS 消息队列
+  - 配置正确的模块依赖关系
+  - **验收标准**：
+    - 执行 `mvn clean compile` 命令成功编译 infrastructure/mq 及其子模块
+    - 检查 infrastructure/pom.xml 的 modules 节，确认声明了 mq
+    - 检查 mq/pom.xml，确认 packaging 为 "pom"，name 为 "Message Queue"
+    - 检查 mq/pom.xml 的 modules 节，确认声明了 mq-api 和 sqs-impl
+    - 检查 mq-api/pom.xml，确认仅依赖 common 模块
+    - 检查 sqs-impl/pom.xml，确认依赖 mq-api、common 模块和 AWS SDK for SQS（未指定版本）
+    - 确认存在包目录：com/catface/infrastructure/mq/api 和 sqs
+  - _需求: 6.4, 6.7, 6.8, 6.9, 1.6_
+
+- [ ] 6.1 创建 interface 层 http 模块并实现全局异常处理器
+  - 创建 interface 父模块（pom 类型）
+  - 创建 http 子模块，处理 HTTP 请求
+  - 实现 HTTP 全局异常处理器，统一处理 BusinessException、SystemException 和未知异常
+  - 配置正确的模块依赖关系
+  - **验收标准**：
+    - 执行 `mvn clean compile` 命令成功编译 interface/http 模块
+    - 检查父 POM 的 modules 节，确认声明了 interface 模块
+    - 检查 interface/pom.xml，确认 packaging 为 "pom"，name 为 "Interface"
+    - 检查 interface/pom.xml 的 modules 节，确认声明了 http 和 consumer
+    - 检查 http/pom.xml，确认 packaging 为 "jar"，name 为 "HTTP Interface"
+    - 检查 http/pom.xml，确认依赖 Spring Web、Spring Validation（未指定版本）、application-api、common
+    - 确认存在 GlobalExceptionHandler.java，使用 @RestControllerAdvice 注解
+    - 确认 GlobalExceptionHandler 包含 handleBusinessException、handleSystemException、handleException 方法
+    - 确认存在包目录：com/catface/http
+  - _需求: 3.1, 3.2, 3.4, 3.5, 3.7, 11.4, 11.6, 11.7, 11.8, 11.9, 1.6_
+
+- [ ] 6.2 创建 interface 层 consumer 模块并实现全局异常处理器
+  - 创建 consumer 子模块，处理消息队列消费
+  - 实现 Consumer 全局异常处理器，支持重试策略
+  - 配置正确的模块依赖关系
+  - **验收标准**：
+    - 执行 `mvn clean compile` 命令成功编译 interface/consumer 模块
+    - 检查 interface/pom.xml 的 modules 节，确认声明了 consumer
+    - 检查 consumer/pom.xml，确认 packaging 为 "jar"，name 为 "Consumer Interface"
+    - 检查 consumer/pom.xml，确认依赖 application-api、common
+    - 确认存在 GlobalExceptionHandler.java，使用 @ControllerAdvice 注解
+    - 确认 GlobalExceptionHandler 包含异常处理逻辑和重试策略
+    - 确认存在包目录：com/catface/consumer
+  - _需求: 3.3, 3.6, 3.7, 11.5, 1.6_
+
+- [ ] 7.1 创建 bootstrap 模块并配置应用入口
+  - 创建 bootstrap 模块（jar 类型）
+  - 配置所有运行时依赖（Spring Boot、Actuator、Prometheus、所有实现模块）
+  - 配置 Spring Boot Maven Plugin 用于打包可执行 JAR
+  - 创建主启动类 OrderCoreApplication
+  - **验收标准**：
+    - 执行 `mvn clean compile` 命令成功编译 bootstrap 模块
+    - 执行 `mvn clean package` 命令成功打包，输出 "BUILD SUCCESS"
+    - 检查父 POM 的 modules 节，确认声明了 bootstrap 模块（最后一个）
+    - 检查 bootstrap/pom.xml，确认 packaging 为 "jar"，name 为 "Bootstrap"
+    - 检查 bootstrap/pom.xml，确认依赖了 http、consumer、application-impl、domain-impl、mysql-impl、redis-impl、sqs-impl、common 模块
+    - 检查 bootstrap/pom.xml，确认依赖了 Spring Boot Starter Web、Actuator、Micrometer Registry Prometheus（未指定版本）
+    - 检查 bootstrap/pom.xml，确认配置了 Spring Boot Maven Plugin，mainClass 为 com.catface.bootstrap.OrderCoreApplication
+    - 确认存在 OrderCoreApplication.java，包含 @SpringBootApplication 注解和 main 方法
+    - 确认 bootstrap/target 目录下生成了 order-core-bootstrap-*.jar 文件
+  - _需求: 7.1, 7.2, 7.3, 7.4, 7.5, 9.1, 9.2, 1.6_
+
+- [ ] 8.1 创建多环境配置文件
+  - 创建 application.yml 通用配置文件
+  - 创建 application-local.yml、application-dev.yml、application-test.yml、application-staging.yml、application-prod.yml 环境特定配置
+  - 创建 bootstrap.yml 引导配置文件
+  - 配置应用基本信息、Actuator 端点、日志级别等
+  - **验收标准**：
+    - 确认存在以下配置文件：application.yml、application-local.yml、application-dev.yml、application-test.yml、application-staging.yml、application-prod.yml、bootstrap.yml
+    - 检查 application.yml，确认配置了 spring.application.name=order-core、server.port=8080、spring.profiles.active=dev
+    - 检查 application.yml，确认配置了 management.endpoints.web.exposure.include=health,prometheus
+    - 检查 application-local.yml 到 application-staging.yml，确认配置了 logging.level.com.catface=DEBUG
+    - 检查 application-prod.yml，确认配置了 logging.level.root=INFO
+    - 执行 `java -jar bootstrap/target/*.jar` 启动应用，验证日志输出包含 "Started" 和 "Tomcat started on port 8080"
+    - 访问 http://localhost:8080/actuator/health，验证返回 HTTP 200 和 {"status":"UP"}
+    - 使用 `--spring.profiles.active=prod` 参数启动，验证日志显示 "The following 1 profile is active: prod"
+  - _需求: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 9.3_
+
+- [ ] 9.1 配置链路追踪依赖并创建 Logback 配置
+  - 在父 POM 的 dependencyManagement 中添加 Micrometer Tracing 和 logstash-logback-encoder 依赖
+  - 在 bootstrap 模块中添加 Micrometer Tracing Bridge Brave 依赖
+  - 创建 logback-spring.xml，配置多环境日志输出策略
+  - **验收标准**：
+    - 检查父 POM 的 dependencyManagement，确认声明了 micrometer-tracing-bom 和 logstash-logback-encoder
+    - 检查 bootstrap/pom.xml，确认添加了 micrometer-tracing-bridge-brave 依赖
+    - 确认存在 logback-spring.xml 文件
+    - 检查 logback-spring.xml，确认包含 `<springProfile name="local">` 配置（控制台输出、彩色格式）
+    - 检查 logback-spring.xml，确认包含 `<springProfile name="dev,test,staging">` 配置（文件输出、JSON 格式）
+    - 检查 logback-spring.xml，确认包含 `<springProfile name="prod">` 配置（文件输出、JSON 格式、AsyncAppender）
+    - 确认配置了 logs/application.log 和 logs/error.log
+    - 确认配置了滚动策略（按日期和 100MB 大小）
+  - _需求: 8.1, 8.2, 8.3_
+
+- [ ] 9.2 验证 local 环境日志输出
+  - 使用 local 环境启动应用并验证日志格式
+  - **验收标准**：
+    - 执行 `java -jar bootstrap/target/*.jar --spring.profiles.active=local` 启动应用
+    - 验证控制台输出彩色格式日志（包含 ANSI 颜色代码）
+    - 访问 http://localhost:8080/actuator/health 端点
+    - 验证控制台输出包含 com.catface 包的 DEBUG 级别日志
+  - _需求: 8.4, 8.5_
+
+- [ ] 9.3 验证 dev 环境日志输出和链路追踪
+  - 使用 dev 环境启动应用并验证 JSON 日志格式和链路追踪字段
+  - **验收标准**：
+    - 执行 `java -jar bootstrap/target/*.jar --spring.profiles.active=dev` 启动应用
+    - 验证在 logs 目录下创建了 application.log 文件
+    - 访问 http://localhost:8080/actuator/health 端点
+    - 检查 application.log 文件，验证包含 JSON 格式日志
+    - 检查 JSON 日志，验证包含以下字段：timestamp、level、thread、logger、traceId、spanId、message
+    - 验证 com.catface 包的日志级别为 DEBUG
+  - _需求: 8.6, 8.7_
+
+- [ ] 9.4 验证 prod 环境日志和错误日志分离
+  - 使用 prod 环境启动应用并验证日志级别和错误日志分离
+  - **验收标准**：
+    - 执行 `java -jar bootstrap/target/*.jar --spring.profiles.active=prod` 启动应用
+    - 访问 http://localhost:8080/actuator/health 端点
+    - 检查 application.log 文件，验证 com.catface 包的日志级别为 INFO（没有 DEBUG 日志）
+    - 访问一个不存在的端点触发错误
+    - 验证在 logs 目录下创建了 error.log 文件
+    - 检查 error.log 文件，验证包含 ERROR 级别的日志
+  - _需求: 8.8, 8.9, 8.10_
+
+- [ ] 10.1 验证 Prometheus 指标端点
+  - 启动应用并验证 Prometheus 指标端点功能
+  - **验收标准**：
+    - 执行 `java -jar bootstrap/target/*.jar` 启动应用
+    - 访问 http://localhost:8080/actuator/prometheus
+    - 验证返回 HTTP 200 状态码
+    - 验证响应头 Content-Type 为 "text/plain;version=0.0.4;charset=utf-8" 或类似格式
+    - 验证返回数据包含 JVM 指标：jvm_memory_used_bytes、jvm_gc_pause_seconds、jvm_threads_live
+    - 访问 http://localhost:8080/actuator/health 端点（生成 HTTP 请求指标）
+    - 再次访问 http://localhost:8080/actuator/prometheus
+    - 验证返回数据包含 HTTP 请求指标：http_server_requests_seconds_count、http_server_requests_seconds_sum
+  - _需求: 9.4, 9.5, 9.6_
+
+- [ ] 11.1 创建测试 Controller 并验证异常处理
+  - 在 http 模块中创建测试 Controller，提供触发各种异常的端点
+  - 验证全局异常处理器正确处理 BusinessException、SystemException 和未知异常
+  - **验收标准**：
+    - 在 http 模块中创建 TestController.java
+    - 实现 /test/business-exception 端点，抛出 BusinessException
+    - 实现 /test/system-exception 端点，抛出 SystemException
+    - 实现 /test/unknown-exception 端点，抛出 RuntimeException
+    - 执行 `mvn clean compile` 成功编译
+    - 执行 `java -jar bootstrap/target/*.jar` 启动应用
+    - 访问 http://localhost:8080/test/business-exception，验证返回 HTTP 400 状态码和 JSON 响应
+    - 访问 http://localhost:8080/test/system-exception，验证返回 HTTP 500 状态码和 JSON 响应
+    - 访问 http://localhost:8080/test/unknown-exception，验证返回 HTTP 500 状态码和 JSON 响应
+    - 验证 message 字段不包含 Java 堆栈信息
+  - _需求: 3.9, 11.6, 11.7, 11.8, 11.9_
+
+- [ ] 12.1 验证项目构建和打包
+  - 验证整个项目可以成功编译和打包
+  - **验收标准**：
+    - 执行 `mvn clean compile` 命令
+    - 验证所有模块成功编译，最终输出 "BUILD SUCCESS"
+    - 验证编译过程中没有 ERROR 或 WARNING
+    - 执行 `mvn clean package` 命令
+    - 验证所有模块成功打包，最终输出 "BUILD SUCCESS"
+    - 验证 bootstrap/target 目录下生成了 order-core-bootstrap-*.jar 文件
+  - _需求: 13.1, 13.2_
+
+- [ ] 12.2 验证依赖版本管理
+  - 验证依赖版本统一由父 POM 管理
+  - **验收标准**：
+    - 执行 `mvn dependency:tree -Dverbose` 命令
+    - 检查 common 模块的输出，验证 Lombok 依赖版本来源为父 POM 的 dependencyManagement
+    - 检查 mysql-impl 模块的输出，验证 MyBatis-Plus 依赖版本来源为父 POM 的 dependencyManagement
+    - 验证输出中显示 "omitted for duplicate" 或 "managed from" 表示版本由父 POM 管理
+  - _需求: 12.4, 12.5, 12.6_
+
+- [ ] 12.3 验证模块依赖关系
+  - 验证模块依赖关系符合 DDD 分层架构要求
+  - **验收标准**：
+    - 执行 `mvn dependency:tree` 命令
+    - 检查 common 模块的输出，验证不依赖任何其他业务模块（只有 Lombok 等工具库）
+    - 检查所有 *-api 模块，验证仅依赖 common 模块
+    - 检查 http 和 consumer 模块，验证仅依赖 application-api 和 common 模块
+    - 检查 application-impl 模块，验证依赖 application-api、domain-api、common 模块
+    - 检查 domain-impl 模块，验证依赖 domain-api、repository-api、cache-api、mq-api、common 模块
+    - 检查基础设施层 *-impl 模块，验证仅依赖对应的 *-api 模块和 common 模块
+    - 验证整个依赖树中不存在循环依赖
+  - _需求: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6, 14.7, 14.8_
+
+- [ ] 12.4 验证配置文件规范
+  - 验证配置文件格式符合规范
+  - **验收标准**：
+    - 检查 bootstrap/src/main/resources 目录，验证所有 Spring 配置文件使用 .yml 扩展名
+    - 检查所有 pom.xml 文件，验证使用一致的缩进（2 个空格或 4 个空格）
+    - 执行 `mvn validate` 命令
+    - 验证命令成功执行，输出 "BUILD SUCCESS"，无格式错误
+  - _需求: 15.1, 15.2, 15.3_

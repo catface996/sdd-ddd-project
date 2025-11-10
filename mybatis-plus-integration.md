@@ -36,8 +36,8 @@ NodeEntity 需要包含以下属性：
 | properties | String | 节点属性 | 可选，JSON 格式存储，用于记录节点的扩展属性（如主机地址、端口号等） |
 | createTime | LocalDateTime | 创建时间 | 系统自动填充（INSERT 时） |
 | updateTime | LocalDateTime | 更新时间 | 系统自动填充（INSERT 和 UPDATE 时） |
-| createBy | String | 创建人 | 系统自动填充（INSERT 时） |
-| updateBy | String | 更新人 | 系统自动填充（INSERT 和 UPDATE 时） |
+| createBy | String | 创建人 | 通过方法参数传递，由调用方提供 |
+| updateBy | String | 更新人 | 通过方法参数传递，由调用方提供 |
 | deleted | Integer | 逻辑删除标记 | 0 表示未删除，1 表示已删除，默认值 0 |
 | version | Integer | 版本号 | 用于乐观锁并发控制，防止数据冲突，默认值 0 |
 
@@ -72,13 +72,25 @@ NodeEntity 需要包含以下属性：
 **集成目标**：
 - 在 infrastructure/repository/mysql-impl 模块中集成 MyBatis-Plus
 - 配置必要的插件和功能：
-  - **分页插件**：支持 MySQL 数据库类型，单页最大数量限制
+  - **分页插件**：支持 MySQL 数据库类型，单页最大数量限制为 100 条
   - **乐观锁插件**：支持版本号并发控制
   - **防全表更新删除插件**：防止误操作
-  - **元数据自动填充处理器**：自动填充创建时间、更新时间、创建人、更新人
+  - **元数据自动填充处理器**：自动填充创建时间、更新时间；创建人和更新人通过方法参数传递
 - 支持多环境数据源配置（local、dev、test、staging、prod）
 - 遵循统一的数据操作规范
 - 配置 Mapper 扫描路径和 XML 文件位置
+
+**包路径设计**：
+- **Mapper 接口扫描路径**：`com.catface.infrastructure.repository.mysql.mapper`
+  - 位置：`infrastructure/repository/mysql-impl/src/main/java/com/catface/infrastructure/repository/mysql/mapper/`
+- **实体类包路径**：`com.catface.domain.entity`
+  - 位置：`domain/domain-api/src/main/java/com/catface/domain/entity/`
+- **Mapper XML 文件位置**：`classpath*:/mapper/**/*.xml`
+  - 位置：`infrastructure/repository/mysql-impl/src/main/resources/mapper/`
+- **Repository 接口包路径**：`com.catface.infrastructure.repository.api`
+  - 位置：`infrastructure/repository/repository-api/src/main/java/com/catface/infrastructure/repository/api/`
+- **Repository 实现类包路径**：`com.catface.infrastructure.repository.mysql.impl`
+  - 位置：`infrastructure/repository/mysql-impl/src/main/java/com/catface/infrastructure/repository/mysql/impl/`
 
 ### 3.2 数据操作规范
 
@@ -105,6 +117,15 @@ NodeEntity 需要包含以下属性：
 
 每个环境应有独立的数据库连接配置和连接池配置。
 
+**数据库连接信息**：
+- 在需求分析阶段，需要用户提供各环境的数据库连接信息，包括：
+  - 数据库名（database name）
+  - 用户名（username）
+  - 密码（password）
+  - 主机地址（host）
+  - 端口号（port）
+  - 其他连接参数（如字符集、时区等）
+
 ### 3.4 Repository 层实现
 
 需要实现 NodeEntity 的仓储层，提供以下数据访问能力：
@@ -117,10 +138,14 @@ NodeEntity 需要包含以下属性：
   - 创建 NodeMapper.xml（SQL 语句管理）
 
 **基本操作**（使用 MyBatis-Plus API）：
-- 保存节点（save 方法，调用 NodeMapper.insert）
-- 更新节点（update 方法，调用 NodeMapper.updateById）
+- 保存节点（save 方法，接收 NodeEntity 和 operator 参数，调用 NodeMapper.insert）
+- 更新节点（update 方法，接收 NodeEntity 和 operator 参数，调用 NodeMapper.updateById）
 - 根据 ID 查询节点（findById 方法，调用 NodeMapper.selectById）
-- 逻辑删除节点（deleteById 方法，调用 NodeMapper.deleteById）
+- 逻辑删除节点（deleteById 方法，接收 id 和 operator 参数，调用 NodeMapper.deleteById）
+
+**说明**：
+- `operator` 参数表示操作人，用于填充 createBy 和 updateBy 字段
+- Repository 层方法需要接收 operator 参数，并在调用 Mapper 前设置到实体对象中
 
 **查询操作**（在 Mapper XML 中定义 SQL）：
 - 根据名称查询节点（selectByName 方法）
@@ -214,47 +239,37 @@ NodeEntity 需要包含以下属性：
 - [ ] 代码有适当的注释和文档
 - [ ] 遵循项目的命名规范和编码规范
 
-## 六、已确认的设计决策
+## 六、待确认的设计决策
 
-以下问题已经与用户确认：
+以下问题需要在需求分析阶段与用户确认：
 
-1. **数据库连接信息**：
-   - 数据库名：tiang
-   - 用户名：tiang_user
-   - 密码：tiang123
-   - 主机：localhost
-   - 端口：3306
-   - 不需要配置多数据源
+1. **数据库连接信息**（必须确认）：
+   - 各环境的数据库名称
+   - 各环境的数据库用户名和密码
+   - 各环境的数据库主机地址和端口
+   - 是否需要配置多数据源（读写分离、分库分表等）
 
-2. **实体类位置**：
-   - NodeEntity 放在 domain-api 模块（作为领域实体）
-   - 不需要区分领域实体和数据库实体
+2. **实体类位置**（建议确认）：
+   - NodeEntity 放在哪个模块（domain-api 或 infrastructure）
+   - 是否需要区分领域实体和数据库实体
 
-3. **节点类型**：
-   - 节点类型固定为 5 种：DATABASE、APPLICATION、API、REPORT、OTHER
-   - 不支持自定义节点类型扩展
+3. **节点类型**（建议确认）：
+   - 节点类型是否固定为 5 种（DATABASE、APPLICATION、API、REPORT、OTHER）
+   - 是否需要支持自定义节点类型扩展
 
-4. **属性字段**：
-   - properties 字段存储 JSON 格式的扩展属性
-   - 无特定的结构要求
-   - 不需要验证 JSON 格式
+4. **属性字段**（建议确认）：
+   - properties 字段是否存储 JSON 格式
+   - 是否有特定的结构要求
+   - 是否需要验证 JSON 格式
 
-5. **测试要求**：
-   - **需要编写单元测试**，覆盖所有 CRUD 操作
-   - 测试场景包括：
-     - 基本的增删改查功能
-     - 唯一约束冲突场景
-     - 乐观锁并发更新场景
-   - 使用实际数据库进行测试（不使用 H2 内存数据库）
+5. **测试要求**（建议确认）：
+   - 是否需要编写单元测试
+   - 测试覆盖哪些场景
+   - 是否使用实际数据库进行测试
 
-6. **初始化数据**：
-   - **需要提供数据库初始化脚本**（schema.sql）
-   - 脚本包含：
-     - 创建 t_node 表的 DDL 语句
-     - 创建唯一索引（name 字段）
-     - 创建普通索引（type、deleted 字段）
-     - 添加 IF NOT EXISTS 判断，避免重复创建
-     - 添加清晰的注释说明
+6. **初始化数据**（建议确认）：
+   - 是否需要提供数据库初始化脚本
+   - 是否需要初始化测试数据
 
 ## 七、实现约束
 

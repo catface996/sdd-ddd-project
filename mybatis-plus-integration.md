@@ -92,7 +92,258 @@ NodeEntity 需要包含以下属性：
 - **Repository 实现类包路径**：`com.catface.infrastructure.repository.mysql.impl`
   - 位置：`infrastructure/repository/mysql-impl/src/main/java/com/catface/infrastructure/repository/mysql/impl/`
 
-### 3.2 数据操作规范
+### 3.2 通用分页结果类设计
+
+#### 3.2.1 PageResult 位置决策
+
+**决策**：将 `PageResult` 类放在 `common/dto/` 目录下，作为通用的分页结果封装类。
+
+**决策理由**：
+
+1. **分页是通用概念**：
+   - 分页的结构（当前页、每页大小、总记录数、总页数、数据列表）在所有层都是一致的
+   - 不需要在各层之间进行"翻译"，只是泛型参数不同
+   - 与 `common/dto/Result<T>` 的设计理念一致，都是通用的"容器"类
+
+2. **避免过度设计**：
+   - 如果每层都定义自己的 Page 模型，会导致大量重复代码
+   - 需要在各层之间频繁进行无意义的转换（结构完全相同，只是泛型参数不同）
+   - 维护成本高，修改分页逻辑需要同步修改多个类
+
+3. **符合实用主义原则**：
+   - 业界主流做法：Spring Data 的 `Page<T>`、MyBatis-Plus 的 `IPage<T>` 都是跨层共享的
+   - 大多数项目都采用一个通用的 `PageResult<T>`，通过泛型参数适配不同层的数据类型
+   - 简单实用，减少不必要的复杂度
+
+4. **与项目现有设计一致**：
+   - 项目中的 `common/dto/Result<T>` 也是泛型类，可以是 `Result<Entity>`、`Result<DTO>`、`Result<VO>`
+   - `PageResult<T>` 采用相同的设计模式，保持一致性
+
+5. **便于使用**：
+   - 各层使用不同的泛型参数：`PageResult<NodeEntity>`、`PageResult<NodeDTO>`、`PageResult<NodeVO>`
+   - 提供 `convert()` 方法支持便捷的类型转换
+   - 所有模块都可以直接使用，无需重复定义
+
+**文件位置**：
+- `common/src/main/java/com/catface/common/dto/PageResult.java`
+
+**使用示例**：
+```java
+// Repository 层返回
+PageResult<NodeEntity> entityPage = repository.findPage(...);
+
+// Application 层转换
+PageResult<NodeDTO> dtoPage = entityPage.convert(this::toDTO);
+
+// HTTP 层转换
+PageResult<NodeVO> voPage = dtoPage.convert(this::toVO);
+```
+
+**注意事项**：
+- ⚠️ PageResult 只是"容器"，不包含业务逻辑
+- ⚠️ 各层的数据对象（Entity、DTO、VO）仍然需要分层定义
+- ⚠️ 只有当模型结构本身不同时，才需要分层定义；结构相同只是泛型参数不同时，共享通用类
+
+### 3.3 Repository 模块 Package 结构规范
+
+#### 3.3.1 repository-api 模块（纯 Java API 层）
+
+**模块职责**：定义仓储接口和领域实体，不依赖任何基础设施框架
+
+**Package 结构**：
+
+```
+com.catface.infrastructure.repository
+├── api/                          # 仓储接口包
+│   ├── NodeRepository.java       # 节点仓储接口
+│   └── package-info.java          # 包说明文档
+│
+└── entity/                        # 领域实体包
+    └── NodeEntity.java            # 节点实体（纯 POJO，无框架注解）
+```
+
+**文件位置**：
+- `infrastructure/repository/repository-api/src/main/java/com/catface/infrastructure/repository/api/`
+- `infrastructure/repository/repository-api/src/main/java/com/catface/infrastructure/repository/entity/`
+
+**关键原则**：
+- ✅ 只包含接口定义和纯 Java 实体
+- ✅ 不依赖任何持久化框架（MyBatis-Plus、JPA 等）
+- ✅ 实体类不包含任何框架特定注解
+- ✅ 分页结果使用 `common/dto/PageResult`，不在此模块定义
+
+**核心类说明**：
+
+| 类名 | 职责 | 框架依赖 |
+|------|------|---------|
+| **NodeEntity** | 领域实体，表示业务概念，纯 POJO | 无 |
+| **NodeRepository** | 仓储接口，定义数据访问契约 | 无 |
+
+#### 3.3.2 mysql-impl 模块（MyBatis-Plus 实现层）
+
+**模块职责**：基于 MyBatis-Plus 实现仓储接口，包含所有框架特定的实现细节
+
+**Package 结构**：
+
+```
+com.catface.infrastructure.repository
+└── mysql/                         # MySQL 实现包（体现技术选型）
+    ├── config/                    # MySQL 配置包
+    │   └── MybatisPlusConfig.java # MyBatis-Plus 配置类
+    │
+    ├── impl/                      # 仓储实现类
+    │   └── NodeRepositoryImpl.java    # 节点仓储实现
+    │
+    ├── mapper/                    # MyBatis Mapper 接口
+    │   └── NodeMapper.java        # 节点 Mapper
+    │
+    ├── po/                        # 持久化对象（Persistent Object）
+    │   └── NodePO.java            # 节点 PO（包含 MyBatis-Plus 注解）
+    │
+    └── package-info.java          # 包说明文档
+```
+
+**文件位置**：
+- `infrastructure/repository/mysql-impl/src/main/java/com/catface/infrastructure/repository/mysql/config/`
+- `infrastructure/repository/mysql-impl/src/main/java/com/catface/infrastructure/repository/mysql/impl/`
+- `infrastructure/repository/mysql-impl/src/main/java/com/catface/infrastructure/repository/mysql/mapper/`
+- `infrastructure/repository/mysql-impl/src/main/java/com/catface/infrastructure/repository/mysql/po/`
+
+**资源文件位置**：
+```
+src/main/resources
+└── mapper/                        # MyBatis XML 映射文件
+    └── NodeMapper.xml             # 节点 Mapper XML
+```
+
+**关键原则**：
+- ✅ 使用 `mysql` 作为 package 名，明确表示这是 MySQL 的实现
+- ✅ **配置内聚**：MybatisPlusConfig 配置类位于 mysql-impl 模块，确保 MySQL 相关配置与实现在一起
+- ✅ 实现 repository-api 中定义的接口
+- ✅ PO 类包含所有 MyBatis-Plus 注解（@TableName、@TableId、@TableField 等）
+- ✅ Mapper 接口继承 BaseMapper<NodePO>
+- ✅ RepositoryImpl 负责 Entity 和 PO 之间的转换
+- ✅ 所有框架特定的代码都在此模块中
+
+**核心类说明**：
+
+| 类名 | Package | 职责 | 框架依赖 |
+|------|---------|------|---------|
+| **MybatisPlusConfig** | `...repository.mysql.config` | MyBatis-Plus 配置，插件注册 | MyBatis-Plus |
+| **NodePO** | `...repository.mysql.po` | 持久化对象，数据库表映射 | MyBatis-Plus |
+| **NodeMapper** | `...repository.mysql.mapper` | MyBatis Mapper 接口 | MyBatis-Plus |
+| **NodeRepositoryImpl** | `...repository.mysql.impl` | 仓储实现，Entity/PO 转换 | MyBatis-Plus |
+
+#### 3.3.3 数据流转示意
+
+```
+业务层 (Application/Domain)
+    ↓ 使用
+NodeEntity + NodeRepository (repository-api)
+    ↓ 实现
+NodeRepositoryImpl (mysql-impl: mysql.impl)
+    ↓ 转换
+NodePO ←→ NodeEntity
+    ↓ 映射
+NodeMapper (mysql-impl: mysql.mapper)
+    ↓ 操作
+数据库表 (t_node)
+```
+
+#### 3.3.4 Package 命名规范说明
+
+**为什么使用 `mysql` 而不是 `sql`？**
+
+1. **明确技术选型**：`mysql` 清楚表明这是 MySQL 数据库的实现
+2. **便于扩展**：未来如果需要支持其他数据库（PostgreSQL、Oracle），可以创建对应的 package：
+   - `com.catface.infrastructure.repository.postgresql.*`
+   - `com.catface.infrastructure.repository.oracle.*`
+3. **符合模块命名**：模块名是 `mysql-impl`，package 名也应该体现 MySQL
+4. **避免歧义**：`sql` 太泛化，不能明确表示具体的数据库实现
+
+#### 3.3.5 架构优势
+
+1. **分层清晰**：API 层和实现层完全解耦
+2. **框架无关**：业务层不依赖任何持久化框架
+3. **易于替换**：可以轻松切换到其他持久化实现（JPA、MongoDB 等）
+4. **符合 DDD**：Entity 是纯领域对象，PO 是技术实现细节
+5. **职责单一**：每个类都有明确的职责边界
+6. **技术明确**：package 名明确表示技术选型，便于理解和维护
+
+### 3.4 MyBatis-Plus 配置路径验证
+
+**重要**：必须确保 MyBatis-Plus 的扫描配置与实际的 package 结构完全一致。
+
+#### 3.4.1 Mapper 扫描配置
+
+**配置位置**：`infrastructure/repository/mysql-impl/src/main/java/com/catface/infrastructure/repository/mysql/config/MybatisPlusConfig.java`
+
+**配置原则**：
+- ✅ **配置内聚**：MybatisPlusConfig 位于 mysql-impl 模块，确保 MySQL 相关配置与实现在一起
+- ✅ **自动扫描**：Spring Boot 主类配置了 `scanBasePackages = "com.catface"`，会自动扫描到此配置类
+- ✅ **Mapper 扫描路径**：`@MapperScan` 注解必须指向 `com.catface.infrastructure.repository.mysql.mapper`
+- ✅ **插件配置**：配置分页插件（单页最大 100 条）、乐观锁插件、防全表更新删除插件
+
+**验证要点**：
+- Mapper 扫描路径与 Mapper 接口的实际 package 路径一致
+- 配置类位于 mysql-impl 模块的 config 包下
+- 插件按正确顺序注册（分页插件必须在第一位）
+
+#### 3.4.2 持久化对象（PO）类型别名配置
+
+**配置位置**：`bootstrap/src/main/resources/application.yml`
+
+**配置原则**：
+- ✅ `type-aliases-package` 必须指向 PO 类的包路径：`com.catface.infrastructure.repository.mysql.po`
+- ⚠️ **注意**：配置的是 PO 类路径，不是 Entity 类路径
+- ⚠️ **原因**：MyBatis-Plus 直接操作 PO（包含框架注解），而不是 Entity（纯 POJO）
+
+**验证要点**：
+- 类型别名路径与 PO 类的实际 package 路径一致
+- PO 类位于 mysql-impl 模块的 po 包下
+
+#### 3.4.3 Mapper XML 文件位置配置
+
+**配置位置**：`bootstrap/src/main/resources/application.yml`
+
+**配置原则**：
+- ✅ `mapper-locations` 配置为 `classpath*:/mapper/**/*.xml`
+- ✅ XML 文件的 namespace 必须与 Mapper 接口的全限定名一致
+- ✅ resultMap 的 type 属性必须与 PO 类的全限定名一致
+
+**验证要点**：
+- Mapper XML 文件位于 mysql-impl 模块的 resources/mapper 目录下
+- XML namespace 与 Mapper 接口完全匹配
+- resultMap type 与 PO 类完全匹配
+
+#### 3.4.4 配置一致性检查清单
+
+在集成 MyBatis-Plus 时，必须检查以下配置的一致性：
+
+- [ ] **Mapper 扫描路径**：`@MapperScan` 注解的值与 Mapper 接口的实际 package 一致
+- [ ] **PO 类型别名路径**：`type-aliases-package` 的值与 PO 类的实际 package 一致
+- [ ] **Mapper XML namespace**：XML 文件的 namespace 与 Mapper 接口的全限定名一致
+- [ ] **Mapper XML resultMap type**：resultMap 的 type 属性与 PO 类的全限定名一致
+- [ ] **项目编译成功**：执行 `mvn clean compile` 无错误
+- [ ] **配置文件格式正确**：YAML 文件缩进和格式正确
+
+#### 3.4.5 常见配置错误
+
+**错误类型 1：Package 路径不一致**
+- Mapper 扫描路径使用了错误的 package 名（如 sql.mapper 而不是 mysql.mapper）
+- type-aliases-package 配置了 Entity 路径而不是 PO 路径
+- Mapper XML namespace 与 Mapper 接口不匹配
+
+**错误类型 2：配置位置错误**
+- MybatisPlusConfig 放在了 bootstrap 模块而不是 mysql-impl 模块
+- Mapper XML 文件放在了错误的资源目录
+
+**错误类型 3：插件配置错误**
+- 分页插件没有放在第一位
+- 缺少必要的插件配置（乐观锁、防全表更新删除）
+- 分页插件的数据库类型配置错误
+
+### 3.5 数据操作规范
 
 系统应遵循以下数据操作规范：
 
@@ -103,7 +354,7 @@ NodeEntity 需要包含以下属性：
 - 条件查询、条件更新、条件删除、复杂查询等操作必须通过 SQL 文件管理
 - 所有 SQL 语句应集中管理，便于维护和性能优化
 
-### 3.3 多环境支持
+### 3.6 多环境支持
 
 数据源配置需要支持以下环境：
 
@@ -126,36 +377,43 @@ NodeEntity 需要包含以下属性：
   - 端口号（port）
   - 其他连接参数（如字符集、时区等）
 
-### 3.4 Repository 层实现
+### 3.7 Repository 层实现
 
 需要实现 NodeEntity 的仓储层，提供以下数据访问能力：
 
 **模块划分**：
 - **repository-api 模块**：定义 NodeRepository 接口（仓储接口）
 - **mysql-impl 模块**：
-  - 实现 NodeMapper 接口（继承 BaseMapper<NodeEntity>）
+  - 实现 NodeMapper 接口（继承 BaseMapper<NodePO>）
   - 实现 NodeRepositoryImpl 类（实现 NodeRepository 接口）
   - 创建 NodeMapper.xml（SQL 语句管理）
 
 **基本操作**（使用 MyBatis-Plus API）：
-- 保存节点（save 方法，接收 NodeEntity 和 operator 参数，调用 NodeMapper.insert）
-- 更新节点（update 方法，接收 NodeEntity 和 operator 参数，调用 NodeMapper.updateById）
-- 根据 ID 查询节点（findById 方法，调用 NodeMapper.selectById）
-- 逻辑删除节点（deleteById 方法，接收 id 和 operator 参数，调用 NodeMapper.deleteById）
+- **保存节点**：接收 NodeEntity 和 operator 参数，转换为 NodePO 后调用 Mapper.insert
+- **更新节点**：接收 NodeEntity 和 operator 参数，转换为 NodePO 后调用 Mapper.updateById
+- **根据 ID 查询**：调用 Mapper.selectById，将 NodePO 转换为 NodeEntity 返回
+- **逻辑删除**：接收 id 和 operator 参数，调用 Mapper.deleteById
 
-**说明**：
+**操作人参数说明**：
 - `operator` 参数表示操作人，用于填充 createBy 和 updateBy 字段
-- Repository 层方法需要接收 operator 参数，并在调用 Mapper 前设置到实体对象中
+- Repository 层方法接收 operator 参数，在调用 Mapper 前设置到 PO 对象中
+- 创建时设置 createBy 和 updateBy，更新时只设置 updateBy
 
 **查询操作**（在 Mapper XML 中定义 SQL）：
-- 根据名称查询节点（selectByName 方法）
-- 根据类型查询节点列表（selectByType 方法）
-- 分页查询节点列表（selectPageByCondition 方法，支持按名称和类型过滤）
+- **根据名称查询**：selectByName 方法，返回单个节点
+- **根据类型查询**：selectByType 方法，返回节点列表
+- **分页查询**：selectPageByCondition 方法，支持按名称和类型过滤
 
-**重要规范**：
-- 所有条件查询必须在 Mapper XML 中定义 SQL 语句
-- 所有 SQL 语句必须包含 `deleted = 0` 条件，只查询未删除的数据
-- 不使用 Wrapper 构造查询条件
+**数据操作规范**：
+- ✅ 简单操作（插入、更新、根据主键查询）使用 MyBatis-Plus API
+- ✅ 条件查询必须在 Mapper XML 中定义 SQL 语句
+- ✅ 所有 SQL 必须包含 `deleted = 0` 条件，只查询未删除的数据
+- ❌ 不使用 Wrapper 构造查询条件
+
+**Entity 和 PO 转换**：
+- RepositoryImpl 负责 NodeEntity 和 NodePO 之间的转换
+- 转换逻辑封装在 RepositoryImpl 内部，对外只暴露 Entity
+- 确保业务层不依赖持久化框架的 PO 类
 
 ## 四、非功能性需求
 

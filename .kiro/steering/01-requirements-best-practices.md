@@ -102,7 +102,7 @@ inclusion: always
 
 **示例**：
 ```
-WHEN 用户创建新项目 THEN THE System SHALL 创建一个父 POM 文件，其 groupId 为 "com.catface.com"
+WHEN 用户创建新项目 THEN THE System SHALL 创建一个父 POM 文件，其 groupId 为 "com.demo.com"
 ```
 
 ### 需求质量标准

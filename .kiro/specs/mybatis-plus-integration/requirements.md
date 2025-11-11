@@ -38,13 +38,13 @@
 
 #### 验收标准
 
-1. THE OrderCore SHALL 在 bootstrap 模块的 com.catface.bootstrap.config 包中创建 MybatisPlusConfig 配置类
+1. THE OrderCore SHALL 在 mysql-impl 模块的 com.demo.ordercore.infrastructure.repository.mysql.config 包中创建 MybatisPlusConfig 配置类
 2. THE OrderCore SHALL 配置分页插件，支持 MySQL 数据库类型
 3. THE OrderCore SHALL 配置分页插件单页最大数量为 100
 4. THE OrderCore SHALL 配置乐观锁插件，支持版本号并发控制
 5. THE OrderCore SHALL 配置防全表更新删除插件，防止误操作
-6. THE OrderCore SHALL 配置元数据自动填充处理器，从 ThreadLocal 或上下文获取 operator 信息，自动填充创建时间、更新时间、创建人、更新人
-7. THE OrderCore SHALL 在配置类上使用 @MapperScan 注解，扫描包路径为 com.catface.infrastructure.repository.sql.mapper
+6. THE OrderCore SHALL 配置元数据自动填充处理器，自动填充创建时间、更新时间（createBy 和 updateBy 通过方法参数传递，不使用自动填充）
+7. THE OrderCore SHALL 在配置类上使用 @MapperScan 注解，扫描包路径为 com.demo.ordercore.infrastructure.repository.mysql.mapper
 8. WHEN 应用启动时 THEN THE OrderCore SHALL 在日志中输出 MyBatis-Plus 初始化成功信息
 
 ### 需求 3：数据源配置
@@ -71,7 +71,7 @@
 #### 验收标准
 
 1. THE OrderCore SHALL 在 application.yml 中配置 Mapper XML 文件位置为 classpath*:/mapper/**/*.xml
-2. THE OrderCore SHALL 在 application.yml 中配置实体类包路径为 com.catface.infrastructure.repository.entity
+2. THE OrderCore SHALL 在 application.yml 中配置实体类包路径为 com.demo.ordercore.infrastructure.repository.mysql.po
 3. THE OrderCore SHALL 在 application.yml 中配置表名前缀为 t_
 4. THE OrderCore SHALL 在 application.yml 中配置主键类型为 ASSIGN_ID（雪花算法）
 5. THE OrderCore SHALL 在 application.yml 中配置逻辑删除字段为 deleted
@@ -79,23 +79,44 @@
 7. THE OrderCore SHALL 在 application.yml 中配置驼峰命名转换为 true
 8. WHEN 应用启动时 THEN THE OrderCore SHALL 加载 MyBatis-Plus 全局配置
 
-### 需求 5：NodeEntity 实体类定义
+### 需求 5：NodeEntity 领域实体定义
 
-**用户故事：** 作为开发人员，我希望定义 NodeEntity 实体类，以便映射数据库表结构。
+**用户故事：** 作为开发人员，我希望定义 NodeEntity 领域实体类，作为纯 POJO 不依赖任何持久化框架。
 
 #### 验收标准
 
-1. THE OrderCore SHALL 在 mysql-impl 模块的 com.catface.infrastructure.repository.entity 包中创建 NodeEntity 类
+1. THE OrderCore SHALL 在 repository-api 模块的 com.demo.ordercore.infrastructure.repository.entity 包中创建 NodeEntity 类
+2. THE OrderCore SHALL 定义 id 字段，类型为 Long
+3. THE OrderCore SHALL 定义 name 字段，类型为 String，最大长度 100 字符，作为唯一约束字段
+4. THE OrderCore SHALL 定义 type 字段，类型为 String，用于存储节点类型（支持扩展，不限制固定值）
+5. THE OrderCore SHALL 定义 description 字段，类型为 String，最大长度 500 字符
+6. THE OrderCore SHALL 定义 properties 字段，类型为 String，用于存储 JSON 格式的扩展属性
+7. THE OrderCore SHALL 定义 createTime 字段，类型为 LocalDateTime
+8. THE OrderCore SHALL 定义 updateTime 字段，类型为 LocalDateTime
+9. THE OrderCore SHALL 定义 createBy 字段，类型为 String
+10. THE OrderCore SHALL 定义 updateBy 字段，类型为 String
+11. THE OrderCore SHALL 定义 deleted 字段，类型为 Integer
+12. THE OrderCore SHALL 定义 version 字段，类型为 Integer
+13. THE OrderCore SHALL 确保 NodeEntity 不包含任何框架特定注解（如 @TableName、@TableId、@TableField 等）
+14. WHEN 执行 mvn clean compile 命令时 THEN THE OrderCore SHALL 成功编译 repository-api 模块
+
+### 需求 5.1：NodePO 持久化对象定义
+
+**用户故事：** 作为开发人员，我希望定义 NodePO 持久化对象，以便映射数据库表结构。
+
+#### 验收标准
+
+1. THE OrderCore SHALL 在 mysql-impl 模块的 com.demo.ordercore.infrastructure.repository.mysql.po 包中创建 NodePO 类
 2. THE OrderCore SHALL 使用 @TableName 注解指定表名为 t_node
 3. THE OrderCore SHALL 定义 id 字段，类型为 Long，使用 @TableId 注解，主键策略为 ASSIGN_ID
-4. THE OrderCore SHALL 定义 name 字段，类型为 String，最大长度 100 字符，作为唯一约束字段
-5. THE OrderCore SHALL 定义 type 字段，类型为 String，用于存储节点类型（支持扩展，不限制固定值）
-6. THE OrderCore SHALL 定义 description 字段，类型为 String，最大长度 500 字符
-7. THE OrderCore SHALL 定义 properties 字段，类型为 String，用于存储 JSON 格式的扩展属性
+4. THE OrderCore SHALL 定义 name 字段，类型为 String
+5. THE OrderCore SHALL 定义 type 字段，类型为 String
+6. THE OrderCore SHALL 定义 description 字段，类型为 String
+7. THE OrderCore SHALL 定义 properties 字段，类型为 String
 8. THE OrderCore SHALL 定义 createTime 字段，类型为 LocalDateTime，使用 @TableField 注解，填充策略为 INSERT
 9. THE OrderCore SHALL 定义 updateTime 字段，类型为 LocalDateTime，使用 @TableField 注解，填充策略为 INSERT_UPDATE
-10. THE OrderCore SHALL 定义 createBy 字段，类型为 String，使用 @TableField 注解，填充策略为 INSERT
-11. THE OrderCore SHALL 定义 updateBy 字段，类型为 String，使用 @TableField 注解，填充策略为 INSERT_UPDATE
+10. THE OrderCore SHALL 定义 createBy 字段，类型为 String（不使用自动填充）
+11. THE OrderCore SHALL 定义 updateBy 字段，类型为 String（不使用自动填充）
 12. THE OrderCore SHALL 定义 deleted 字段，类型为 Integer，使用 @TableLogic 注解
 13. THE OrderCore SHALL 定义 version 字段，类型为 Integer，使用 @Version 注解
 14. WHEN 执行 mvn clean compile 命令时 THEN THE OrderCore SHALL 成功编译 mysql-impl 模块
@@ -106,12 +127,12 @@
 
 #### 验收标准
 
-1. THE OrderCore SHALL 在 mysql-impl 模块的 com.catface.infrastructure.repository.sql.mapper 包中创建 NodeMapper 接口
-2. THE OrderCore SHALL 使 NodeMapper 继承 BaseMapper<NodeEntity>
+1. THE OrderCore SHALL 在 mysql-impl 模块的 com.demo.ordercore.infrastructure.repository.mysql.mapper 包中创建 NodeMapper 接口
+2. THE OrderCore SHALL 使 NodeMapper 继承 BaseMapper<NodePO>
 3. THE OrderCore SHALL 使用 @Mapper 注解标记 NodeMapper
-4. THE OrderCore SHALL 在 NodeMapper 中定义 selectByName 方法，接收 name 参数，返回 NodeEntity
-5. THE OrderCore SHALL 在 NodeMapper 中定义 selectByType 方法，接收 type 参数，返回 List<NodeEntity>
-6. THE OrderCore SHALL 在 NodeMapper 中定义 selectPageByCondition 方法，接收 Page、name、type 参数，返回 IPage<NodeEntity>
+4. THE OrderCore SHALL 在 NodeMapper 中定义 selectByName 方法，接收 name 参数，返回 NodePO
+5. THE OrderCore SHALL 在 NodeMapper 中定义 selectByType 方法，接收 type 参数，返回 List<NodePO>
+6. THE OrderCore SHALL 在 NodeMapper 中定义 selectPageByCondition 方法，接收 Page、name、type 参数，返回 IPage<NodePO>
 7. WHEN 执行 mvn clean compile 命令时 THEN THE OrderCore SHALL 成功编译 mysql-impl 模块
 
 ### 需求 7：NodeMapper XML 实现
@@ -155,7 +176,7 @@
 
 #### 验收标准
 
-1. THE OrderCore SHALL 在 repository-api 模块的 com.catface.infrastructure.repository.api 包中创建 NodeRepository 接口
+1. THE OrderCore SHALL 在 repository-api 模块的 com.demo.ordercore.infrastructure.repository.api 包中创建 NodeRepository 接口
 2. THE OrderCore SHALL 在 NodeRepository 中定义 save 方法，接收 NodeEntity 和 operator 参数，返回 void
 3. THE OrderCore SHALL 在 NodeRepository 中定义 update 方法，接收 NodeEntity 和 operator 参数，返回 void
 4. THE OrderCore SHALL 在 NodeRepository 中定义 findById 方法，接收 id 参数，返回 NodeEntity
@@ -171,18 +192,19 @@
 
 #### 验收标准
 
-1. THE OrderCore SHALL 在 mysql-impl 模块的 com.catface.infrastructure.repository.sql.impl 包中创建 NodeRepositoryImpl 类
+1. THE OrderCore SHALL 在 mysql-impl 模块的 com.demo.ordercore.infrastructure.repository.mysql.impl 包中创建 NodeRepositoryImpl 类
 2. THE OrderCore SHALL 使 NodeRepositoryImpl 实现 NodeRepository 接口
 3. THE OrderCore SHALL 使用 @Repository 注解标记 NodeRepositoryImpl
 4. THE OrderCore SHALL 在 NodeRepositoryImpl 中注入 NodeMapper
-5. THE OrderCore SHALL 实现 save 方法，接收 entity 和 operator 参数，将 operator 设置到 entity 的 createBy 和 updateBy 字段，然后调用 NodeMapper 的 insert 方法
-6. THE OrderCore SHALL 实现 update 方法，接收 entity 和 operator 参数，将 operator 设置到 entity 的 updateBy 字段，然后调用 NodeMapper 的 updateById 方法
-7. THE OrderCore SHALL 实现 findById 方法，调用 NodeMapper 的 selectById 方法
-8. THE OrderCore SHALL 实现 findByName 方法，调用 NodeMapper 的 selectByName 方法
-9. THE OrderCore SHALL 实现 findByType 方法，调用 NodeMapper 的 selectByType 方法
-10. THE OrderCore SHALL 实现 findPage 方法，调用 NodeMapper 的 selectPageByCondition 方法
-11. THE OrderCore SHALL 实现 deleteById 方法，接收 id 和 operator 参数，先查询实体，将 operator 设置到 updateBy 字段，然后调用 NodeMapper 的 deleteById 方法（逻辑删除）
-12. WHEN 执行 mvn clean compile 命令时 THEN THE OrderCore SHALL 成功编译 mysql-impl 模块
+5. THE OrderCore SHALL 实现 save 方法，接收 entity 和 operator 参数，将 NodeEntity 转换为 NodePO，设置 operator 到 createBy 和 updateBy 字段，调用 NodeMapper 的 insert 方法
+6. THE OrderCore SHALL 实现 update 方法，接收 entity 和 operator 参数，将 NodeEntity 转换为 NodePO，设置 operator 到 updateBy 字段，调用 NodeMapper 的 updateById 方法
+7. THE OrderCore SHALL 实现 findById 方法，调用 NodeMapper 的 selectById 方法，将 NodePO 转换为 NodeEntity 返回
+8. THE OrderCore SHALL 实现 findByName 方法，调用 NodeMapper 的 selectByName 方法，将 NodePO 转换为 NodeEntity 返回
+9. THE OrderCore SHALL 实现 findByType 方法，调用 NodeMapper 的 selectByType 方法，将 List<NodePO> 转换为 List<NodeEntity> 返回
+10. THE OrderCore SHALL 实现 findPage 方法，调用 NodeMapper 的 selectPageByCondition 方法，将 IPage<NodePO> 转换为 IPage<NodeEntity> 返回
+11. THE OrderCore SHALL 实现 deleteById 方法，接收 id 和 operator 参数，先查询 NodePO，设置 operator 到 updateBy 字段，调用 NodeMapper 的 deleteById 方法（逻辑删除）
+12. THE OrderCore SHALL 在 NodeRepositoryImpl 中实现 Entity 和 PO 之间的转换方法（toEntity、toPO）
+13. WHEN 执行 mvn clean compile 命令时 THEN THE OrderCore SHALL 成功编译 mysql-impl 模块
 
 ### 需求 11：功能验证 - 创建节点
 
@@ -313,22 +335,7 @@
 6. THE OrderCore SHALL 在 schema.sql 中添加清晰的注释说明
 7. WHEN 执行 schema.sql 脚本时 THEN THE OrderCore SHALL 成功创建 t_node 表及其索引
 
-### 需求 21：Operator 上下文管理
-
-**用户故事：** 作为开发人员，我希望系统提供 Operator 上下文管理机制，以便在 Repository 层和 MetaObjectHandler 中获取当前操作人信息。
-
-#### 验收标准
-
-1. THE OrderCore SHALL 在 common 模块中创建 OperatorContext 工具类，用于管理当前操作人信息
-2. THE OrderCore SHALL 使用 ThreadLocal 存储当前操作人信息
-3. THE OrderCore SHALL 在 OperatorContext 中提供 setOperator 方法，用于设置当前操作人
-4. THE OrderCore SHALL 在 OperatorContext 中提供 getOperator 方法，用于获取当前操作人
-5. THE OrderCore SHALL 在 OperatorContext 中提供 clear 方法，用于清除当前操作人信息
-6. THE OrderCore SHALL 在 MetaObjectHandler 中从 OperatorContext 获取当前操作人，用于自动填充 createBy 和 updateBy 字段
-7. THE OrderCore SHALL 在 NodeRepositoryImpl 的 save、update、deleteById 方法中，调用 OperatorContext.setOperator 设置操作人信息
-8. WHEN 执行 mvn clean compile 命令时 THEN THE OrderCore SHALL 成功编译相关模块
-
-### 需求 22：JSON 格式验证
+### 需求 21：JSON 格式验证
 
 **用户故事：** 作为开发人员，我希望系统能够验证 properties 字段的 JSON 格式，以便确保数据的正确性。
 
@@ -339,21 +346,21 @@
 3. WHEN properties 字段不是有效的 JSON 格式时 THEN THE OrderCore SHALL 抛出业务异常
 4. THE OrderCore SHALL 在异常处理器中捕获 JSON 格式验证异常，返回友好的错误信息
 
-### 需求 23：日志配置
+### 需求 22：日志配置
 
 **用户故事：** 作为开发人员，我希望配置不同环境的日志级别，以便在开发环境中调试 SQL，在生产环境中减少日志输出。
 
 #### 验收标准
 
-1. THE OrderCore SHALL 在 application-local.yml 中配置 MyBatis-Plus 日志级别为 DEBUG
-2. THE OrderCore SHALL 在 application-dev.yml 中配置 MyBatis-Plus 日志级别为 DEBUG
-3. THE OrderCore SHALL 在 application-test.yml 中配置 MyBatis-Plus 日志级别为 INFO
-4. THE OrderCore SHALL 在 application-staging.yml 中配置 MyBatis-Plus 日志级别为 INFO
-5. THE OrderCore SHALL 在 application-prod.yml 中配置 MyBatis-Plus 日志级别为 WARN
+1. THE OrderCore SHALL 在 application-local.yml 中配置 Mapper 包日志级别为 DEBUG（com.demo.ordercore.infrastructure.repository.mysql.mapper）
+2. THE OrderCore SHALL 在 application-dev.yml 中配置 Mapper 包日志级别为 DEBUG
+3. THE OrderCore SHALL 在 application-test.yml 中配置 Mapper 包日志级别为 INFO
+4. THE OrderCore SHALL 在 application-staging.yml 中配置 Mapper 包日志级别为 INFO
+5. THE OrderCore SHALL 在 application-prod.yml 中配置 Mapper 包日志级别为 WARN
 6. WHEN 应用在 local 或 dev 环境启动时 THEN THE OrderCore SHALL 在日志中输出 SQL 语句
 7. WHEN 应用在 test、staging 或 prod 环境启动时 THEN THE OrderCore SHALL 不输出 SQL 语句到日志
 
-### 需求 24：测试数据库配置
+### 需求 23：测试数据库配置
 
 **用户故事：** 作为开发人员，我希望配置测试数据库，以便在单元测试中使用实际的 MySQL 数据库。
 
@@ -366,7 +373,7 @@
 5. THE OrderCore SHALL 在测试类上使用 @Transactional 注解，确保测试完成后自动回滚
 6. WHEN 执行 mvn test 命令时 THEN THE OrderCore SHALL 使用测试数据库执行测试
 
-### 需求 25：数据库连接信息配置
+### 需求 24：数据库连接信息配置
 
 **用户故事：** 作为开发人员，我希望为各环境配置数据库连接信息，以便系统能够连接到正确的数据库。
 
@@ -381,7 +388,7 @@
 7. THE OrderCore SHALL 在 application-prod.yml 中使用占位符配置数据库连接信息
 8. WHEN 应用启动时 THEN THE OrderCore SHALL 根据当前 profile 加载对应的数据库连接信息
 
-### 需求 26：Druid 连接池详细配置
+### 需求 25：Druid 连接池详细配置
 
 **用户故事：** 作为开发人员，我希望详细配置 Druid 连接池参数，以便优化数据库连接性能和监控。
 

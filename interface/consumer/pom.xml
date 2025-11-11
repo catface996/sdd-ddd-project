@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.catface</groupId>
+        <groupId>com.demo</groupId>
         <artifactId>interface</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -20,14 +20,14 @@
     <dependencies>
         <!-- Application API -->
         <dependency>
-            <groupId>com.catface</groupId>
+            <groupId>com.demo</groupId>
             <artifactId>application-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- Common -->
         <dependency>
-            <groupId>com.catface</groupId>
+            <groupId>com.demo</groupId>
             <artifactId>common</artifactId>
             <version>${project.version}</version>
         </dependency>

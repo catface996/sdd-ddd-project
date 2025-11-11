@@ -18,7 +18,7 @@
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } --- [%t] %-40.40logger{39} : %m%n%wEx"/>
 
     <!-- ========================================== -->
-    <!-- Local 环境配置：控制台输出，彩色格式 -->
+    <!-- Local 环境配置：控制台输出，彩色格式，DEBUG 级别 -->
     <!-- ========================================== -->
     <springProfile name="local">
         <!-- 控制台 Appender -->
@@ -29,13 +29,13 @@
             </encoder>
         </appender>
 
-        <!-- Root Logger -->
-        <root level="INFO">
+        <!-- Root Logger：DEBUG 级别 -->
+        <root level="DEBUG">
             <appender-ref ref="CONSOLE"/>
         </root>
 
         <!-- 项目包日志级别 -->
-        <logger name="com.catface" level="DEBUG"/>
+        <logger name="com.demo" level="DEBUG"/>
     </springProfile>
 
     <!-- ========================================== -->
@@ -84,7 +84,7 @@
         </root>
 
         <!-- 项目包日志级别 -->
-        <logger name="com.catface" level="DEBUG"/>
+        <logger name="com.demo" level="DEBUG"/>
     </springProfile>
 
     <!-- ========================================== -->
@@ -147,7 +147,7 @@
         </root>
 
         <!-- 项目包日志级别 -->
-        <logger name="com.catface" level="INFO"/>
+        <logger name="com.demo" level="INFO"/>
     </springProfile>
 
 </configuration>

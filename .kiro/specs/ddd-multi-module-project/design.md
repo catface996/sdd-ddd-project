@@ -52,7 +52,7 @@ OrderCore 采用 DDD 分层架构，通过 Maven 多模块实现模块化和依�
 
 **关键配置**：
 
-- **groupId**: `com.catface`
+- **groupId**: `com.demo`
 - **artifactId**: `order-core-parent`
 - **packaging**: `pom`
 - **Java 版本**: 21
@@ -83,10 +83,10 @@ OrderCore 采用 DDD 分层架构，通过 Maven 多模块实现模块化和依�
 **职责**: 提供通用工具类、异常定义、DTO、常量
 
 **包结构**:
-- `com.catface.common.exception` - 异常类
-- `com.catface.common.dto` - 通用 DTO
-- `com.catface.common.constant` - 常量定义
-- `com.catface.common.util` - 工具类
+- `com.demo.ordercore.common.exception` - 异常类
+- `com.demo.ordercore.common.dto` - 通用 DTO
+- `com.demo.ordercore.common.constant` - 常量定义
+- `com.demo.ordercore.common.util` - 工具类
 
 **依赖**: Lombok
 
@@ -172,14 +172,14 @@ OrderCore 采用 DDD 分层架构，通过 Maven 多模块实现模块化和依�
 - mysql-impl, redis-impl, sqs-impl, common
 
 **包含**:
-- 主启动类: `com.catface.bootstrap.OrderCoreApplication`
+- 主启动类: `com.demo.ordercore.bootstrap.OrderCoreApplication`
 - 配置文件: application.yml, application-*.yml, bootstrap.yml, logback-spring.xml
 
 ## 核心组件设计
 
 ### 异常体系
 
-**位置**: `common/src/main/java/com/catface/common/exception/`
+**位置**: `common/src/main/java/com/demo/common/exception/`
 
 **类层次结构**:
 ```
@@ -208,7 +208,7 @@ RuntimeException
 
 ### 统一响应类
 
-**位置**: `common/src/main/java/com/catface/common/dto/Result.java`
+**位置**: `common/src/main/java/com/demo/common/dto/Result.java`
 
 **设计**:
 - 泛型类，支持不同类型的响应数据
@@ -226,7 +226,7 @@ RuntimeException
 
 #### HTTP 异常处理器
 
-**位置**: `interface/http/src/main/java/com/catface/http/handler/GlobalExceptionHandler.java`
+**位置**: `interface/http/src/main/java/com/demo/http/handler/GlobalExceptionHandler.java`
 
 **设计**:
 - 使用 @RestControllerAdvice 注解标记为全局异常处理器
@@ -247,7 +247,7 @@ RuntimeException
 
 #### Consumer 异常处理器
 
-**位置**: `interface/consumer/src/main/java/com/catface/consumer/handler/GlobalExceptionHandler.java`
+**位置**: `interface/consumer/src/main/java/com/demo/consumer/handler/GlobalExceptionHandler.java`
 
 **设计**:
 - 使用 @ControllerAdvice 注解标记为全局异常处理器
@@ -275,7 +275,7 @@ RuntimeException
    - `<springProfile name="prod">`: 文件输出，JSON 格式，异步 Appender
 
 2. **日志级别配置**:
-   - local/dev/test/staging: `com.catface` 包 DEBUG 级别
+   - local/dev/test/staging: `com.demo` 包 DEBUG 级别
    - prod: 所有包 INFO 级别
 
 3. **日志输出目标**:
@@ -367,7 +367,7 @@ RuntimeException
 ### 环境特定配置
 
 **application-dev.yml 配置内容**:
-- 日志级别: com.catface 包使用 DEBUG 级别
+- 日志级别: com.demo 包使用 DEBUG 级别
 - 其他开发环境特定配置
 
 **application-prod.yml 配置内容**:
@@ -420,7 +420,7 @@ RuntimeException
 
 **Bootstrap 模块配置**:
 - 使用 Spring Boot Maven Plugin 打包
-- 配置主启动类: com.catface.bootstrap.OrderCoreApplication
+- 配置主启动类: com.demo.ordercore.bootstrap.OrderCoreApplication
 - 打包类型: 可执行 JAR（包含所有依赖）
 - 生成的 JAR 文件命名格式: order-core-bootstrap-{version}.jar
 

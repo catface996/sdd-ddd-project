@@ -29,29 +29,29 @@
 
 ```
 order-core-parent/
-├── common/                          # 通用模块
-│   └── util/
-│       └── OperatorContext         # 操作人上下文管理（新增）
+├── common/                          # 通用模块（无新增内容）
 ├── infrastructure/
 │   └── repository/
 │       ├── repository-api/
-│       │   └── api/
-│       │       └── NodeRepository  # 仓储接口（新增）
+│       │   ├── api/
+│       │   │   └── NodeRepository  # 仓储接口（新增）
+│       │   └── entity/
+│       │       └── NodeEntity      # 领域实体（新增，纯 POJO）
 │       └── mysql-impl/
-│           ├── entity/
-│           │   └── NodeEntity      # 数据库实体（新增）
+│           ├── config/
+│           │   ├── MybatisPlusConfig       # MyBatis-Plus 配置类（新增）
+│           │   └── CustomMetaObjectHandler # 元数据填充处理器（新增）
+│           ├── po/
+│           │   └── NodePO          # 持久化对象（新增，包含注解）
 │           ├── mapper/
 │           │   └── NodeMapper      # MyBatis Mapper 接口（新增）
 │           ├── impl/
-│           │   └── NodeRepositoryImpl  # 仓储实现（新增）
+│           │   └── NodeRepositoryImpl  # 仓储实现（新增，负责 Entity/PO 转换）
 │           └── resources/
 │               ├── mapper/
 │               │   └── NodeMapper.xml  # SQL 映射文件（新增）
 │               └── schema.sql      # 数据库初始化脚本（新增）
 └── bootstrap/
-    ├── config/
-    │   ├── MybatisPlusConfig       # MyBatis-Plus 配置类（新增）
-    │   └── CustomMetaObjectHandler # 元数据填充处理器（新增）
     └── OrderCoreApplication        # 启动类（修改：移除 DataSource 自动配置排除）
 ```
 
@@ -98,7 +98,7 @@ order-core-parent/
 
 #### 3.2.1 配置类设计（MybatisPlusConfig）
 
-**位置**：`bootstrap/src/main/java/com/catface/bootstrap/config/MybatisPlusConfig.java`
+**位置**：`infrastructure/repository/mysql-impl/src/main/java/com/demo/infrastructure/repository/mysql/config/MybatisPlusConfig.java`
 
 **职责**：
 - 配置 MyBatis-Plus 拦截器链
@@ -118,24 +118,30 @@ order-core-parent/
 3. **防全表更新删除插件**（BlockAttackInnerInterceptor）
    - 防止无条件的 UPDATE 和 DELETE
 
-**Mapper 扫描路径**：`com.catface.infrastructure.repository.sql.mapper`
+**Mapper 扫描路径**：`com.demo.ordercore.infrastructure.repository.mysql.mapper`
+
+**设计理由**：
+- 配置内聚：MybatisPlusConfig 位于 mysql-impl 模块，确保 MySQL 相关配置与实现在一起
+- 自动扫描：Spring Boot 主类配置了 `scanBasePackages = "com.demo"`，会自动扫描到此配置类
 
 #### 3.2.2 元数据填充处理器设计（CustomMetaObjectHandler）
 
-**位置**：`bootstrap/src/main/java/com/catface/bootstrap/config/CustomMetaObjectHandler.java`
+**位置**：`infrastructure/repository/mysql-impl/src/main/java/com/demo/infrastructure/repository/mysql/config/CustomMetaObjectHandler.java`
 
 **填充策略**：
-- **INSERT 时填充**：createTime、updateTime、createBy、updateBy
-- **UPDATE 时填充**：updateTime、updateBy
+- **INSERT 时填充**：createTime、updateTime
+- **UPDATE 时填充**：updateTime
 
 **数据来源**：
 - createTime、updateTime：使用当前时间
-- createBy、updateBy：从 OperatorContext 获取当前操作人
+
+**不自动填充的字段**：
+- createBy、updateBy：通过方法参数传递，在 Repository 层直接设置到实体对象
 
 **设计理由**：
-- 符合需求要求（需求 2.6、需求 5.10、需求 5.11）
-- 减少重复代码，统一填充逻辑
-- 通过 OperatorContext 管理操作人信息
+- 符合需求要求（需求 2.6）
+- createTime、updateTime 使用自动填充，减少重复代码
+- createBy、updateBy 通过方法参数传递，更加灵活和明确
 
 
 
@@ -162,7 +168,7 @@ order-core-parent/
 
 **MyBatis-Plus 全局配置**：
 - mapper-locations: `classpath*:/mapper/**/*.xml`
-- type-aliases-package: `com.catface.domain.entity`
+- type-aliases-package: `com.demo.ordercore.infrastructure.repository.mysql.po`
 - id-type: `ASSIGN_ID`（雪花算法）
 - table-prefix: `t_`
 - logic-delete-field: `deleted`
@@ -195,40 +201,73 @@ order-core-parent/
 
 
 
-### 3.4 NodeEntity 实体类设计
+### 3.4 实体类设计
 
-#### 3.4.1 实体类位置
+#### 3.4.1 NodeEntity 领域实体设计
 
-**位置**：`infrastructure/repository/mysql-impl/src/main/java/com/catface/infrastructure/repository/entity/NodeEntity.java`
+**位置**：`infrastructure/repository/repository-api/src/main/java/com/demo/infrastructure/repository/entity/NodeEntity.java`
 
 **设计理由**：
-- 需求明确指定位置（需求 5.1）
-- NodeEntity 是数据库表的映射，属于基础设施层的数据模型
-- 不是领域模型，而是持久化层的实体
+- NodeEntity 是领域实体，表示业务概念
+- 作为纯 POJO，不依赖任何持久化框架
+- 位于 repository-api 模块，确保业务层不依赖具体实现
 
-#### 3.4.2 字段设计
+**字段设计**：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | Long | 主键 |
+| name | String | 节点名称，唯一约束 |
+| type | String | 节点类型（不限制固定值，支持扩展） |
+| description | String | 节点描述 |
+| properties | String | JSON 格式扩展属性 |
+| createTime | LocalDateTime | 创建时间 |
+| updateTime | LocalDateTime | 更新时间 |
+| createBy | String | 创建人 |
+| updateBy | String | 更新人 |
+| deleted | Integer | 逻辑删除标记（0: 未删除, 1: 已删除） |
+| version | Integer | 乐观锁版本号 |
+
+**重要说明**：
+- NodeEntity 不包含任何框架特定注解
+- 纯 POJO，只包含业务字段和 getter/setter
+
+#### 3.4.2 NodePO 持久化对象设计
+
+**位置**：`infrastructure/repository/mysql-impl/src/main/java/com/demo/infrastructure/repository/mysql/po/NodePO.java`
+
+**设计理由**：
+- NodePO 是持久化对象，用于数据库表映射
+- 包含所有 MyBatis-Plus 注解
+- 位于 mysql-impl 模块，体现技术实现细节
+
+**字段设计**：
 
 | 字段 | 类型 | 注解 | 说明 |
 |------|------|------|------|
 | id | Long | @TableId(ASSIGN_ID) | 主键，雪花算法生成 |
 | name | String | - | 节点名称，唯一约束 |
-| type | String | - | 节点类型（不限制固定值，支持扩展） |
+| type | String | - | 节点类型 |
 | description | String | - | 节点描述 |
 | properties | String | - | JSON 格式扩展属性 |
 | createTime | LocalDateTime | @TableField(INSERT) | 创建时间，自动填充 |
 | updateTime | LocalDateTime | @TableField(INSERT_UPDATE) | 更新时间，自动填充 |
-| createBy | String | @TableField(INSERT) | 创建人，自动填充 |
-| updateBy | String | @TableField(INSERT_UPDATE) | 更新人，自动填充 |
-| deleted | Integer | @TableLogic | 逻辑删除标记（0: 未删除, 1: 已删除） |
+| createBy | String | - | 创建人，通过方法参数传递 |
+| updateBy | String | - | 更新人，通过方法参数传递 |
+| deleted | Integer | @TableLogic | 逻辑删除标记 |
 | version | Integer | @Version | 乐观锁版本号 |
 
 **注解说明**：
 - `@TableName("t_node")`：指定表名
 - `@TableId(type = IdType.ASSIGN_ID)`：主键策略为雪花算法
-- `@TableField(fill = FieldFill.INSERT)`：插入时自动填充
-- `@TableField(fill = FieldFill.INSERT_UPDATE)`：插入和更新时自动填充
+- `@TableField(fill = FieldFill.INSERT)`：插入时自动填充（仅用于 createTime、updateTime）
+- `@TableField(fill = FieldFill.INSERT_UPDATE)`：插入和更新时自动填充（仅用于 updateTime）
 - `@TableLogic`：逻辑删除标记
 - `@Version`：乐观锁版本号
+
+**重要说明**：
+- createBy 和 updateBy 字段不使用自动填充
+- 这两个字段通过方法参数传递，在 Repository 层设置到 PO 对象
 
 ### 3.5 数据库表设计
 
@@ -272,9 +311,9 @@ order-core-parent/
 
 #### 3.6.1 NodeMapper 接口
 
-**位置**：`infrastructure/repository/mysql-impl/src/main/java/com/catface/infrastructure/repository/sql/mapper/NodeMapper.java`
+**位置**：`infrastructure/repository/mysql-impl/src/main/java/com/demo/infrastructure/repository/mysql/mapper/NodeMapper.java`
 
-**继承关系**：继承 `BaseMapper<NodeEntity>`
+**继承关系**：继承 `BaseMapper<NodePO>`
 
 **自定义方法**：
 1. `selectByName(String name)`: 根据名称查询节点
@@ -289,7 +328,7 @@ order-core-parent/
 
 **ResultMap 定义**：
 - id: BaseResultMap
-- type: com.catface.domain.entity.NodeEntity
+- type: com.demo.ordercore.infrastructure.repository.mysql.po.NodePO
 - 映射所有字段
 
 **SQL 语句**：
@@ -317,7 +356,7 @@ order-core-parent/
 
 #### 3.7.1 NodeRepository 接口
 
-**位置**：`infrastructure/repository/repository-api/src/main/java/com/catface/infrastructure/repository/api/NodeRepository.java`
+**位置**：`infrastructure/repository/repository-api/src/main/java/com/demo/infrastructure/repository/api/NodeRepository.java`
 
 **方法定义**：
 1. `save(NodeEntity entity, String operator)`: 保存节点
@@ -334,67 +373,54 @@ order-core-parent/
 
 #### 3.7.2 NodeRepositoryImpl 实现类
 
-**位置**：`infrastructure/repository/mysql-impl/src/main/java/com/catface/infrastructure/repository/sql/impl/NodeRepositoryImpl.java`
+**位置**：`infrastructure/repository/mysql-impl/src/main/java/com/demo/infrastructure/repository/mysql/impl/NodeRepositoryImpl.java`
 
 **实现策略**：
 
 1. **save 方法**：
-   - 调用 OperatorContext.setOperator(operator)
-   - 调用 nodeMapper.insert(entity)
-   - 调用 OperatorContext.clear()（在 finally 块中）
+   - 将 NodeEntity 转换为 NodePO
+   - 设置 operator 到 po.createBy 和 po.updateBy
+   - 调用 nodeMapper.insert(po)
 
 2. **update 方法**：
-   - 调用 OperatorContext.setOperator(operator)
-   - 调用 nodeMapper.updateById(entity)
-   - 调用 OperatorContext.clear()（在 finally 块中）
+   - 将 NodeEntity 转换为 NodePO
+   - 设置 operator 到 po.updateBy
+   - 调用 nodeMapper.updateById(po)
 
 3. **findById 方法**：
    - 调用 nodeMapper.selectById(id)
+   - 将 NodePO 转换为 NodeEntity 返回
 
 4. **findByName 方法**：
    - 调用 nodeMapper.selectByName(name)
+   - 将 NodePO 转换为 NodeEntity 返回
 
 5. **findByType 方法**：
    - 调用 nodeMapper.selectByType(type)
+   - 将 List<NodePO> 转换为 List<NodeEntity> 返回
 
 6. **findPage 方法**：
    - 创建 Page 对象（current, size）
    - 调用 nodeMapper.selectPageByCondition(page, name, type)
+   - 将 IPage<NodePO> 转换为 IPage<NodeEntity> 返回
 
 7. **deleteById 方法**：
-   - 调用 OperatorContext.setOperator(operator)
+   - 先查询 PO：nodeMapper.selectById(id)
+   - 设置 operator 到 po.updateBy
    - 调用 nodeMapper.deleteById(id)（逻辑删除）
-   - 调用 OperatorContext.clear()（在 finally 块中）
+
+**转换方法**：
+
+1. **toEntity(NodePO po)**：将 NodePO 转换为 NodeEntity
+2. **toPO(NodeEntity entity)**：将 NodeEntity 转换为 NodePO
+3. **toEntityList(List<NodePO> poList)**：批量转换 PO 列表
+4. **toEntityPage(IPage<NodePO> poPage)**：转换分页结果
 
 **注解**：`@Repository`
 
 **依赖注入**：注入 NodeMapper
 
 
-
-### 3.8 OperatorContext 设计
-
-#### 3.8.1 设计目的
-
-提供线程安全的操作人上下文管理工具类，用于在 Repository 层和 MetaObjectHandler 中传递和获取当前操作人信息。
-
-#### 3.8.2 实现设计
-
-**位置**：`common/src/main/java/com/catface/common/util/OperatorContext.java`
-
-**核心功能**：
-- 使用 ThreadLocal 存储当前操作人信息
-- 提供 setOperator 方法，用于设置当前操作人
-- 提供 getOperator 方法，用于获取当前操作人
-- 提供 clear 方法，用于清除当前操作人信息
-
-**使用场景**：
-1. **Repository 层**：在 save、update、deleteById 方法中调用 setOperator 设置操作人，在 finally 块中调用 clear 清除
-2. **MetaObjectHandler**：从 OperatorContext 获取操作人，自动填充 createBy 和 updateBy 字段
-
-**注意事项**：
-- 必须在 finally 块中调用 clear，避免 ThreadLocal 内存泄漏
-- 如果 OperatorContext 中没有操作人信息，MetaObjectHandler 不填充 createBy 和 updateBy
 
 ## 4. 非功能性设计
 
@@ -559,23 +585,25 @@ order-core-parent/
 
 ---
 
-### ADR-003：NodeEntity 放在 mysql-impl 模块
+### ADR-003：Entity/PO 分离架构
 
 **状态**：已接受
 
-**背景**：需要确定 NodeEntity 的位置，需求明确指定了位置
+**背景**：需要确定实体类的设计模式，是使用单一实体还是 Entity/PO 分离
 
-**决策**：NodeEntity 放在 mysql-impl 模块的 `com.catface.infrastructure.repository.entity` 包
+**决策**：采用 Entity/PO 分离架构
 
 **理由**：
-- 需求明确指定位置（需求 5.1）
-- NodeEntity 是数据库表的映射，属于基础设施层的数据模型
-- 不是领域模型，而是持久化层的实体
-- 遵循需求优先原则
+- 原始需求明确要求（3.3 节）
+- NodeEntity 作为领域实体，不依赖任何持久化框架
+- NodePO 作为持久化对象，包含所有 MyBatis-Plus 注解
+- 业务层不依赖具体的持久化实现
+- 符合 DDD 分层架构原则
+- 易于替换持久化实现（如切换到 JPA、MongoDB）
 
 **后果**：
-- 正面：符合需求，职责清晰
-- 负面：如果其他模块需要引用 NodeEntity，需要依赖 mysql-impl 模块
+- 正面：分层清晰，框架无关，易于替换实现
+- 负面：需要在 Repository 层进行 Entity/PO 转换，增加少量代码
 
 ---
 
@@ -599,23 +627,23 @@ order-core-parent/
 
 ---
 
-### ADR-005：createBy 和 updateBy 使用 OperatorContext + 自动填充
+### ADR-005：createBy 和 updateBy 通过方法参数传递
 
 **状态**：已接受
 
-**背景**：需要记录操作人信息，需求要求使用自动填充
+**背景**：需要记录操作人信息
 
-**决策**：使用 OperatorContext + MetaObjectHandler 自动填充 createBy 和 updateBy
+**决策**：createBy 和 updateBy 通过方法参数传递，在 Repository 层直接设置到实体对象
 
 **理由**：
-- 需求明确要求使用自动填充（需求 2.6、需求 5.10、需求 5.11）
-- 需求明确要求实现 OperatorContext（需求 21）
-- 减少重复代码，统一填充逻辑
-- 遵循需求优先原则
+- 需求明确要求通过方法参数传递（原始需求 2.2 表格说明）
+- 更加灵活和明确，调用方可以清楚地知道需要提供操作人信息
+- 避免使用 ThreadLocal，减少内存泄漏风险
+- 代码更加简洁，易于理解和维护
 
 **后果**：
-- 正面：符合需求，减少重复代码
-- 负面：需要在 Repository 层调用 OperatorContext.setOperator 和 clear
+- 正面：代码简洁，职责清晰，无 ThreadLocal 内存泄漏风险
+- 负面：Repository 方法需要额外的 operator 参数
 
 
 
@@ -781,13 +809,7 @@ order-core-parent/
 - ✅ 测试乐观锁并发更新
 - ✅ 使用 @SpringBootTest 和 @Transactional
 
-### 7.11 OperatorContext 需求（需求 21）
 
-- ✅ 在 common 模块中创建 OperatorContext 工具类
-- ✅ 使用 ThreadLocal 存储当前操作人信息
-- ✅ 提供 setOperator、getOperator、clear 方法
-- ✅ 在 MetaObjectHandler 中从 OperatorContext 获取操作人
-- ✅ 在 Repository 层调用 OperatorContext.setOperator 设置操作人
 
 
 
@@ -795,7 +817,7 @@ order-core-parent/
 
 ### 8.1 已避免的过度设计
 
-- ✅ **不实现 OperatorContext**：根据 ADR-005，采用更简洁的方法参数传递方案
+- ✅ **不使用 ThreadLocal 管理操作人**：根据 ADR-005，采用更简洁的方法参数传递方案
 - ✅ **不实现复杂的缓存机制**：当前阶段不需要，后续根据性能需求再考虑
 - ✅ **不实现多数据源**：当前只需要单数据源，不提前设计读写分离或分库分表
 - ✅ **不实现自定义 ID 生成器**：使用 MyBatis-Plus 内置的雪花算法即可
@@ -821,10 +843,9 @@ order-core-parent/
 
 ### 9.1 模块依赖一致性
 
-- ✅ domain-api 模块：只依赖 MyBatis-Plus（用于注解），不依赖其他业务模块
-- ✅ repository-api 模块：依赖 domain-api，定义仓储接口
-- ✅ mysql-impl 模块：依赖 repository-api、common，实现仓储接口
-- ✅ bootstrap 模块：依赖 mysql-impl，提供配置类
+- ✅ repository-api 模块：不依赖任何持久化框架，定义 Entity 和 Repository 接口
+- ✅ mysql-impl 模块：依赖 repository-api、common、MyBatis-Plus，实现仓储接口
+- ✅ bootstrap 模块：依赖 mysql-impl，启动应用
 
 ### 9.2 数据流一致性
 
@@ -835,15 +856,16 @@ order-core-parent/
 
 ### 9.3 配置一致性
 
-- ✅ 表名前缀：配置为 `t_`，实体类使用 `@TableName("t_node")`
-- ✅ 主键策略：配置为 `ASSIGN_ID`，实体类使用 `@TableId(type = IdType.ASSIGN_ID)`
-- ✅ 逻辑删除：配置 deleted 字段，实体类使用 `@TableLogic`
-- ✅ Mapper 扫描路径：配置为 `com.catface.infrastructure.repository.mysql.mapper`
-- ✅ 实体类包路径：配置为 `com.catface.domain.entity`
+- ✅ 表名前缀：配置为 `t_`，PO 类使用 `@TableName("t_node")`
+- ✅ 主键策略：配置为 `ASSIGN_ID`，PO 类使用 `@TableId(type = IdType.ASSIGN_ID)`
+- ✅ 逻辑删除：配置 deleted 字段，PO 类使用 `@TableLogic`
+- ✅ Mapper 扫描路径：配置为 `com.demo.ordercore.infrastructure.repository.mysql.mapper`
+- ✅ PO 类包路径：配置为 `com.demo.ordercore.infrastructure.repository.mysql.po`
 
 ### 9.4 命名一致性
 
-- ✅ 实体类：NodeEntity
+- ✅ 领域实体：NodeEntity（repository-api）
+- ✅ 持久化对象：NodePO（mysql-impl）
 - ✅ 表名：t_node
 - ✅ Mapper 接口：NodeMapper
 - ✅ Mapper XML：NodeMapper.xml
@@ -893,13 +915,13 @@ order-core-parent/
 
 | 组件 | 包路径 | 模块 |
 |------|--------|------|
-| NodeEntity | com.catface.infrastructure.repository.entity | mysql-impl |
-| NodeRepository | com.catface.infrastructure.repository.api | repository-api |
-| NodeMapper | com.catface.infrastructure.repository.sql.mapper | mysql-impl |
-| NodeRepositoryImpl | com.catface.infrastructure.repository.sql.impl | mysql-impl |
-| MybatisPlusConfig | com.catface.bootstrap.config | bootstrap |
-| CustomMetaObjectHandler | com.catface.bootstrap.config | bootstrap |
-| OperatorContext | com.catface.common.util | common |
+| NodeEntity | com.demo.ordercore.infrastructure.repository.entity | repository-api |
+| NodePO | com.demo.ordercore.infrastructure.repository.mysql.po | mysql-impl |
+| NodeRepository | com.demo.ordercore.infrastructure.repository.api | repository-api |
+| NodeMapper | com.demo.ordercore.infrastructure.repository.mysql.mapper | mysql-impl |
+| NodeRepositoryImpl | com.demo.ordercore.infrastructure.repository.mysql.impl | mysql-impl |
+| MybatisPlusConfig | com.demo.ordercore.infrastructure.repository.mysql.config | mysql-impl |
+| CustomMetaObjectHandler | com.demo.ordercore.infrastructure.repository.mysql.config | mysql-impl |
 
 ### 11.2 配置文件汇总
 

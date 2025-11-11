@@ -8,7 +8,7 @@
   - 配置 dependencyManagement 统一管理 Spring Boot、Spring Cloud 及第三方库版本
   - **验收标准**：
     - 执行 `mvn clean compile` 命令成功，输出 "BUILD SUCCESS"
-    - 检查 pom.xml 文件，确认 groupId 为 "com.catface"，artifactId 为 "order-core-parent"
+    - 检查 pom.xml 文件，确认 groupId 为 "com.demo"，artifactId 为 "order-core-parent"
     - 确认 packaging 为 "pom"
     - 确认 properties 中定义了 java.version=21
     - 确认 dependencyManagement 中导入了 spring-boot-dependencies 和 spring-cloud-dependencies BOM
@@ -27,7 +27,7 @@
     - 确认存在 BaseException.java（抽象类），包含 errorCode 和 message 字段
     - 确认存在 BusinessException.java 和 SystemException.java，继承自 BaseException
     - 确认存在 Result.java，包含 code、message、data、timestamp 字段和 success()、error() 静态方法
-    - 确认存在包目录：com/catface/common/exception、dto、constant、util
+    - 确认存在包目录：com/demo/common/exception、dto、constant、util
   - _需求: 2.1, 2.2, 2.3, 2.4, 11.1, 11.2, 11.3, 1.6, 12.4_
 
 - [x] 3. 创建 application 层模块结构
@@ -43,7 +43,7 @@
     - 检查 application-api/pom.xml，确认 packaging 为 "jar"，name 为 "Application API"
     - 检查 application-api/pom.xml，确认仅依赖 common 模块
     - 检查 application-impl/pom.xml，确认依赖 application-api、domain-api、common 模块
-    - 确认存在包目录：com/catface/application/api 和 com/catface/application/impl
+    - 确认存在包目录：com/demo/application/api 和 com/demo/application/impl
   - _需求: 4.1, 4.2, 4.3, 4.4, 4.5, 1.6_
 
 - [x] 4. 创建 domain 层模块结构
@@ -58,7 +58,7 @@
     - 检查 domain/pom.xml 的 modules 节，确认声明了 domain-api 和 domain-impl
     - 检查 domain-api/pom.xml，确认仅依赖 common 模块
     - 检查 domain-impl/pom.xml，确认依赖 domain-api、repository-api、cache-api、mq-api、common 模块
-    - 确认存在包目录：com/catface/domain/api 和 com/catface/domain/impl
+    - 确认存在包目录：com/demo/domain/api 和 com/demo/domain/impl
   - _需求: 5.1, 5.2, 5.3, 5.4, 5.5, 1.6_
 
 - [x] 5. 创建 infrastructure 层 repository 模块
@@ -76,7 +76,7 @@
     - 检查 repository/pom.xml 的 modules 节，确认声明了 repository-api 和 mysql-impl
     - 检查 repository-api/pom.xml，确认仅依赖 common 模块
     - 检查 mysql-impl/pom.xml，确认依赖 repository-api、common 模块和 MyBatis-Plus（未指定版本）
-    - 确认存在包目录：com/catface/infrastructure/repository/api 和 mysql
+    - 确认存在包目录：com/demo/infrastructure/repository/api 和 mysql
   - _需求: 6.1, 6.2, 6.5, 6.8, 6.9, 12.5, 1.6_
 
 - [x] 6. 创建 infrastructure 层 cache 模块
@@ -91,7 +91,7 @@
     - 检查 cache/pom.xml 的 modules 节，确认声明了 cache-api 和 redis-impl
     - 检查 cache-api/pom.xml，确认仅依赖 common 模块
     - 检查 redis-impl/pom.xml，确认依赖 cache-api、common 模块和 Spring Data Redis（未指定版本）
-    - 确认存在包目录：com/catface/infrastructure/cache/api 和 redis
+    - 确认存在包目录：com/demo/infrastructure/cache/api 和 redis
   - _需求: 6.3, 6.6, 6.8, 6.9, 1.6_
 
 - [x] 7. 创建 infrastructure 层 mq 模块
@@ -106,7 +106,7 @@
     - 检查 mq/pom.xml 的 modules 节，确认声明了 mq-api 和 sqs-impl
     - 检查 mq-api/pom.xml，确认仅依赖 common 模块
     - 检查 sqs-impl/pom.xml，确认依赖 mq-api、common 模块和 AWS SDK for SQS（未指定版本）
-    - 确认存在包目录：com/catface/infrastructure/mq/api 和 sqs
+    - 确认存在包目录：com/demo/infrastructure/mq/api 和 sqs
   - _需求: 6.4, 6.7, 6.8, 6.9, 1.6_
 
 - [x] 8. 创建 interface 层 http 模块并实现全局异常处理器
@@ -123,7 +123,7 @@
     - 检查 http/pom.xml，确认依赖 Spring Web、Spring Validation（未指定版本）、application-api、common
     - 确认存在 GlobalExceptionHandler.java，使用 @RestControllerAdvice 注解
     - 确认 GlobalExceptionHandler 包含 handleBusinessException、handleSystemException、handleException 方法
-    - 确认存在包目录：com/catface/http
+    - 确认存在包目录：com/demo/http
   - _需求: 3.1, 3.2, 3.4, 3.5, 3.7, 11.4, 11.6, 11.7, 11.8, 11.9, 1.6_
 
 - [x] 9. 创建 interface 层 consumer 模块并实现全局异常处理器
@@ -137,7 +137,7 @@
     - 检查 consumer/pom.xml，确认依赖 application-api、common 模块
     - 确认存在 GlobalExceptionHandler.java，使用 @ControllerAdvice 注解
     - 确认 GlobalExceptionHandler 包含异常处理方法，记录 ERROR 级别日志
-    - 确认存在包目录：com/catface/consumer
+    - 确认存在包目录：com/demo/consumer
   - _需求: 3.3, 3.6, 3.7, 11.5, 11.6, 11.7, 11.8, 11.9, 1.6_
 
 - [x] 10. 创建 bootstrap 启动模块
@@ -152,7 +152,7 @@
     - 检查 bootstrap/pom.xml，确认依赖 http、consumer、application-impl、domain-impl
     - 检查 bootstrap/pom.xml，确认依赖 mysql-impl、redis-impl、sqs-impl、common
     - 确认存在 OrderCoreApplication.java，包含 @SpringBootApplication 注解和 main 方法
-    - 确认存在包目录：com/catface/bootstrap
+    - 确认存在包目录：com/demo/bootstrap
   - _需求: 7.1, 7.2, 7.3, 7.4, 1.6_
 
 - [x] 11. 配置 application.yml 多环境配置
@@ -228,7 +228,7 @@
   - 验证打包生成的 JAR 文件
   - **验收标准**：
     - 检查 bootstrap/pom.xml 的 build 节，确认配置了 spring-boot-maven-plugin
-    - 检查插件配置，确认指定了主启动类 com.catface.bootstrap.OrderCoreApplication
+    - 检查插件配置，确认指定了主启动类 com.demo.ordercore.bootstrap.OrderCoreApplication
     - 执行 `mvn clean package` 命令成功，输出 "BUILD SUCCESS"
     - 检查 bootstrap/target 目录，确认生成了名称匹配 order-core-bootstrap-*.jar 的文件
     - 检查 JAR 文件大小，确认为可执行 JAR（包含所有依赖，大于 30MB）
@@ -263,10 +263,10 @@
   - 在 application-dev.yml 中配置开发环境的日志级别
   - 在 application-prod.yml 中配置生产环境的日志级别
   - **验收标准**：
-    - 检查 application-local.yml，确认 logging.level.com.catface 为 DEBUG
-    - 检查 application-dev.yml，确认 logging.level.com.catface 为 DEBUG
-    - 检查 application-test.yml，确认 logging.level.com.catface 为 DEBUG
-    - 检查 application-staging.yml，确认 logging.level.com.catface 为 DEBUG
+    - 检查 application-local.yml，确认 logging.level.com.demo 为 DEBUG
+    - 检查 application-dev.yml，确认 logging.level.com.demo 为 DEBUG
+    - 检查 application-test.yml，确认 logging.level.com.demo 为 DEBUG
+    - 检查 application-staging.yml，确认 logging.level.com.demo 为 DEBUG
     - 检查 application-prod.yml，确认 logging.level.root 为 INFO
     - 执行 `mvn clean compile` 命令成功
   - _需求: 8.5, 8.8_
@@ -348,7 +348,7 @@
     - 执行 `java -jar bootstrap/target/order-core-bootstrap-*.jar --spring.profiles.active=local` 启动应用
     - 检查控制台输出，确认日志为彩色格式
     - 访问 http://localhost:8080/actuator/health
-    - 检查控制台输出，确认包含 com.catface 包的 DEBUG 级别日志
+    - 检查控制台输出，确认包含 com.demo 包的 DEBUG 级别日志
     - 停止应用
   - _需求: 8.4, 8.5_
 
@@ -374,7 +374,7 @@
     - 执行 `java -jar bootstrap/target/order-core-bootstrap-*.jar --spring.profiles.active=prod` 启动应用
     - 检查项目根目录，确认创建了 logs/application.log 文件
     - 访问 http://localhost:8080/actuator/health
-    - 检查 application.log 文件，确认 com.catface 包使用 INFO 级别（无 DEBUG 日志）
+    - 检查 application.log 文件，确认 com.demo 包使用 INFO 级别（无 DEBUG 日志）
     - 访问 http://localhost:8080/test/system-exception 触发错误
     - 检查项目根目录，确认创建了 logs/error.log 文件
     - 检查 error.log 文件，确认包含错误日志

@@ -103,18 +103,20 @@ project-root/
 
 ## 六、技术栈选型
 
-| 技术 | 用途 | 说明 |
-|------|------|------|
-| **JDK 21** | 开发语言环境 | 使用 LTS 版本 |
-| **Spring Boot 3.3.x** | 应用基础框架 | 配置驱动、依赖注入、服务运行 |
-| **Spring Cloud 2024.0.x（Leyton）** | 微服务框架 | 预留微服务生态支持，当前阶段仅使用链路追踪功能 |
-| **MyBatis-Plus 3.5.x** | ORM 框架 | 简化 CRUD，增强 MyBatis 功能 |
-| **Spring Boot Starter Data Redis (Lettuce)** | Redis 客户端 | 使用 Spring Boot 官方推荐的 Lettuce 客户端负责缓存访问逻辑 |
-| **Spring Validation / Web** | 参数验证和 HTTP 支持 | 用于接口层 |
-| **Lombok** | 代码简化 | 自动生成 getter/setter |
-| **Spring Boot Test / JUnit 5** | 测试框架 | 单元测试与集成测试 |
-| **OpenFeign（可选）** | 微服务间调用 | 支持服务内的 API 调用 |
-| **Micrometer + Prometheus（可选）** | 监控与指标 | 提供可观测性支持 |
+| 技术 | 版本 | 用途 | 说明 |
+|------|------|------|------|
+| **JDK** | 21 | 开发语言环境 | 使用 LTS 版本 |
+| **Spring Boot** | 3.4.1 | 应用基础框架 | 配置驱动、依赖注入、服务运行 |
+| **Spring Cloud** | 2025.0.0 | 微服务框架 | 预留微服务生态支持，当前阶段仅使用链路追踪功能 |
+| **MyBatis-Plus** | 3.5.7 | ORM 框架 | 简化 CRUD，增强 MyBatis 功能，使用 Spring Boot 3 专用启动器 |
+| **Druid** | 1.2.20 | 数据库连接池 | 阿里巴巴开源的数据库连接池，提供监控和扩展功能 |
+| **MySQL Connector/J** | 由 Spring Boot 管理 | MySQL 驱动 | 版本由 Spring Boot BOM 统一管理 |
+| **Spring Boot Starter Data Redis (Lettuce)** | 由 Spring Boot 管理 | Redis 客户端 | 使用 Spring Boot 官方推荐的 Lettuce 客户端 |
+| **Micrometer Tracing** | 1.3.5 | 分布式链路追踪 | 提供 Trace ID 和 Span ID 生成与传播 |
+| **Logstash Logback Encoder** | 7.4 | 日志 JSON 编码器 | 输出结构化 JSON 格式日志 |
+| **AWS SDK for SQS** | 2.20.0 | 消息队列客户端 | AWS SQS 消息队列 SDK |
+| **Lombok** | 由 Spring Boot 管理 | 代码简化 | 自动生成 getter/setter |
+| **Spring Boot Test / JUnit 5** | 由 Spring Boot 管理 | 测试框架 | 单元测试与集成测试 |
 
 ---
 

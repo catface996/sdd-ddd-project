@@ -3,6 +3,82 @@ spring:
     name: order-core
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  
+  # 禁用数据库初始化
+  sql:
+    init:
+      mode: never
+  
+  # 主配置
+  main:
+    lazy-initialization: false
+    allow-bean-definition-overriding: true
+  
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    
+    # Druid 连接池配置
+    druid:
+      # 初始化连接数
+      initial-size: 5
+      # 最小空闲连接数
+      min-idle: 5
+      # 最大活跃连接数
+      max-active: 20
+      # 连接超时时间（毫秒）
+      max-wait: 30000
+      
+      # Druid 监控统计功能
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: admin123
+        reset-enable: false
+      
+      # Druid Filter 配置
+      filter:
+        # 统计监控 Filter
+        stat:
+          enabled: true
+          log-slow-sql: true
+          slow-sql-millis: 1000
+        # SQL 防火墙 Filter
+        wall:
+          enabled: true
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  # Mapper XML 文件位置
+  mapper-locations: classpath*:/mapper/**/*.xml
+  
+  # 持久化对象包路径（PO）
+  type-aliases-package: com.demo.infrastructure.repository.mysql.po
+  
+  # 全局配置
+  global-config:
+    # 数据库相关配置
+    db-config:
+      # 主键类型（雪花算法）
+      id-type: ASSIGN_ID
+      # 表名前缀
+      table-prefix: t_
+      # 逻辑删除配置
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+    
+    # 关闭 Banner
+    banner: false
+  
+  # MyBatis 原生配置
+  configuration:
+    # 驼峰命名转换
+    map-underscore-to-camel-case: true
+    # 关闭二级缓存
+    cache-enabled: false
 
 server:
   port: 8080

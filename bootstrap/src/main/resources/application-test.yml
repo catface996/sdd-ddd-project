@@ -1,26 +1,3 @@
 logging:
   level:
     com.demo: DEBUG
-    com.demo.ordercore.infrastructure.repository.mysql.mapper: INFO
-
-# 测试环境配置
-spring:
-  datasource:
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-
-# Redis 连接配置（示例）
-# spring:
-#   data:
-#     redis:
-#       host: test-redis-server
-#       port: 6379
-#       database: 0
-#       password: ${REDIS_PASSWORD}
-
-# AWS SQS 配置（示例）
-# aws:
-#   sqs:
-#     region: us-east-1
-#     queue-url: https://sqs.us-east-1.amazonaws.com/123456789/order-core-test

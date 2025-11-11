@@ -32,36 +32,98 @@ MyBatis-Plus（简称 MP）是 MyBatis 的增强工具，在 MyBatis 的基础�
 
 ### Maven 依赖配置
 
+#### 父 POM 依赖管理（pom.xml）
+
+```xml
+<properties>
+    <!-- MyBatis-Plus 版本 -->
+    <mybatis-plus.version>3.5.7</mybatis-plus.version>
+    <!-- Druid 版本 -->
+    <druid.version>1.2.20</druid.version>
+</properties>
+
+<dependencyManagement>
+    <dependencies>
+        <!-- MyBatis-Plus Spring Boot 3 Starter -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+
+        <!-- Druid 数据库连接池 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>${druid.version}</version>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+#### 子模块依赖配置（infrastructure/repository/mysql-impl/pom.xml）
+
 ```xml
 <dependencies>
-    <!-- MyBatis-Plus Starter -->
+    <!-- MyBatis-Plus Spring Boot 3 Starter -->
     <dependency>
         <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus-boot-starter</artifactId>
-        <version>3.5.5</version>
+        <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
     </dependency>
-    
-    <!-- 数据库驱动 -->
+
+    <!-- Druid 数据库连接池 -->
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid-spring-boot-starter</artifactId>
+    </dependency>
+
+    <!-- MySQL 驱动 -->
     <dependency>
         <groupId>com.mysql</groupId>
         <artifactId>mysql-connector-j</artifactId>
         <scope>runtime</scope>
     </dependency>
-    
-    <!-- 连接池（推荐 HikariCP，Spring Boot 默认） -->
+
+    <!-- Lombok -->
     <dependency>
-        <groupId>com.zaxxer</groupId>
-        <artifactId>HikariCP</artifactId>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <optional>true</optional>
     </dependency>
 </dependencies>
 ```
 
 ### 版本选择建议
 
-- **MyBatis-Plus 3.5.x**：推荐使用最新稳定版，支持 JDK 8+
-- **Spring Boot 2.7.x / 3.x**：根据项目 JDK 版本选择
-- **MySQL 8.x**：推荐使用 `mysql-connector-j`
-- **MySQL 5.x**：使用 `mysql-connector-java`
+- **JDK**：21（LTS 版本，Spring Boot 3.4.1 完全支持）
+- **Spring Boot**：3.4.1（最新稳定版本）
+- **Spring Cloud**：2025.0.0（与 Spring Boot 3.4.1 兼容）
+- **MyBatis-Plus**：3.5.7（支持 Spring Boot 3，必须使用 `mybatis-plus-spring-boot3-starter`）
+- **Druid**：1.2.20（阿里巴巴数据库连接池，支持 Spring Boot 3）
+- **MySQL Connector/J**：由 Spring Boot BOM 管理（Spring Boot 3.4.1 默认使用 8.x 版本）
+
+### 版本兼容性说明
+
+1. **Spring Boot 3.x + MyBatis-Plus 3.5.7**：
+   - ✅ **必须使用**：`mybatis-plus-spring-boot3-starter`（Spring Boot 3 专用）
+   - ❌ **不能使用**：`mybatis-plus-boot-starter`（仅支持 Spring Boot 2）
+   - **原因**：Spring Boot 3 对 Jakarta EE 的支持与 Spring Boot 2 不同，必须使用专用启动器
+
+2. **MySQL 驱动类名**：
+   - ✅ **正确**：`com.mysql.cj.jdbc.Driver`（MySQL Connector/J 8.x）
+   - ❌ **错误**：`com.mysql.jdbc.Driver`（已废弃）
+   - **原因**：MySQL Connector/J 8.x 使用新的驱动类名
+
+3. **JDK 版本要求**：
+   - Spring Boot 3.4.1 最低要求 JDK 17
+   - 推荐使用 JDK 21（LTS 版本）
+   - MyBatis-Plus 3.5.7 支持 JDK 8+，完全兼容 JDK 21
+
+4. **依赖版本管理原则**：
+   - 所有版本号在父 POM 的 `<properties>` 中定义
+   - 在父 POM 的 `<dependencyManagement>` 中声明依赖
+   - 子模块不指定版本号，从父 POM 继承
+   - Spring Boot 和 Spring Cloud 通过 BOM 管理依赖版本
 
 ---
 
@@ -632,7 +694,7 @@ public List<UserEntity> searchUsers(String username, Integer status) {
 **XML 文件组织规范**：
 
 1. **文件位置**：`infrastructure/repository/src/main/resources/mapper/`
-2. **命名规范**：��� Mapper 接口同名，如 `UserMapper.xml`
+2. **命名规范**：与 Mapper 接口同名，如 `UserMapper.xml`
 3. **SQL 顺序**：查询 → 插入 → 更新 → 删除
 4. **注释规范**：每个 SQL 语句都应添加清晰的注释
 5. **格式规范**：保持良好的缩进和换行，提高可读性
@@ -1389,25 +1451,57 @@ project-root/
 
 ```xml
 <!-- 父 POM 中管理版本 -->
+<properties>
+    <!-- MyBatis-Plus 版本 -->
+    <mybatis-plus.version>3.5.7</mybatis-plus.version>
+    <!-- Druid 版本 -->
+    <druid.version>1.2.20</druid.version>
+</properties>
+
 <dependencyManagement>
     <dependencies>
+        <!-- MyBatis-Plus Spring Boot 3 Starter -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.5.5</version>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+
+        <!-- Druid 数据库连接池 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>${druid.version}</version>
         </dependency>
     </dependencies>
 </dependencyManagement>
 
-<!-- infrastructure/repository 模块引入依赖 -->
+<!-- infrastructure/repository/mysql-impl 模块引入依赖 -->
 <dependencies>
+    <!-- MyBatis-Plus Spring Boot 3 Starter -->
     <dependency>
         <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus-boot-starter</artifactId>
+        <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
     </dependency>
+
+    <!-- Druid 数据库连接池 -->
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid-spring-boot-starter</artifactId>
+    </dependency>
+
+    <!-- MySQL 驱动 -->
     <dependency>
         <groupId>com.mysql</groupId>
         <artifactId>mysql-connector-j</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+
+    <!-- Lombok -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <optional>true</optional>
     </dependency>
 </dependencies>
 ```

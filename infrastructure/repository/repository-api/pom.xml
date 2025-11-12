@@ -18,6 +18,13 @@
     <description>仓储接口定义模块</description>
 
     <dependencies>
+        <!-- Common Module -->
+        <dependency>
+            <groupId>com.demo</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>

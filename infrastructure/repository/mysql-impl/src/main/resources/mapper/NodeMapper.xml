@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.infrastructure.repository.mysql.mapper.NodeMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.demo.infrastructure.repository.mysql.po.NodePO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <result column="description" property="description"/>
+        <result column="properties" property="properties"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="deleted" property="deleted"/>
+        <result column="version" property="version"/>
+    </resultMap>
+    
+    <!-- 根据节点名称查询节点（精确匹配） -->
+    <select id="selectByName" resultMap="BaseResultMap">
+        SELECT id, name, type, description, properties,
+               create_time, update_time, create_by, update_by,
+               deleted, version
+        FROM t_node
+        WHERE name = #{name}
+          AND deleted = 0
+    </select>
+    
+    <!-- 根据节点类型查询节点列表（精确匹配，按创建时间降序） -->
+    <select id="selectByType" resultMap="BaseResultMap">
+        SELECT id, name, type, description, properties,
+               create_time, update_time, create_by, update_by,
+               deleted, version
+        FROM t_node
+        WHERE type = #{type}
+          AND deleted = 0
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 分页查询节点（支持名称模糊查询和类型精确查询，按创建时间降序） -->
+    <select id="selectPageByCondition" resultMap="BaseResultMap">
+        SELECT id, name, type, description, properties,
+               create_time, update_time, create_by, update_by,
+               deleted, version
+        FROM t_node
+        WHERE deleted = 0
+        <if test="name != null and name != ''">
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="type != null and type != ''">
+            AND type = #{type}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+    
+</mapper>

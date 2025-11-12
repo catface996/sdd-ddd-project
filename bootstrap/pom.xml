@@ -77,6 +77,12 @@
         <!-- Infrastructure Layer -->
         <dependency>
             <groupId>com.demo</groupId>
+            <artifactId>repository-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.demo</groupId>
             <artifactId>mysql-impl</artifactId>
             <version>${project.version}</version>
         </dependency>

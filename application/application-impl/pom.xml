@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.demo</groupId>
+        <artifactId>application</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>application-impl</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Application Implementation</name>
+    <description>应用服务实现</description>
+
+    <dependencies>
+        <!-- Application API 模块 -->
+        <dependency>
+            <groupId>com.demo</groupId>
+            <artifactId>application-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Common 模块 -->
+        <dependency>
+            <groupId>com.demo</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- 注意：domain-api 依赖将在任务 4 创建 domain 模块后添加 -->
+    </dependencies>
+
+</project>

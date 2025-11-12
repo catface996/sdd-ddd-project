@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: order-core
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  
+  # 禁用数据库初始化
+  sql:
+    init:
+      mode: never
+  
+  # 主配置
+  main:
+    lazy-initialization: false
+    allow-bean-definition-overriding: true
+  
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      type: B3
+  metrics:
+    export:
+      prometheus:
+        enabled: true

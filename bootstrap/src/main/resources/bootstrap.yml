@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: order-core
+  profiles:
+    active: local

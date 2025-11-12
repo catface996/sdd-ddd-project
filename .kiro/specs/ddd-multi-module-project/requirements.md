@@ -31,8 +31,8 @@
 
 #### 验收标准
 
-1. THE OrderCore SHALL 创建一个父 POM 文件，其 groupId 为 "com.catface"，artifactId 为 "order-core-parent"
-2. THE OrderCore SHALL 确保所有子模块的 groupId 为 "com.catface"
+1. THE OrderCore SHALL 创建一个父 POM 文件，其 groupId 为 "com.demo"，artifactId 为 "order-core-parent"
+2. THE OrderCore SHALL 确保所有子模块的 groupId 为 "com.demo"
 3. THE OrderCore SHALL 在父 POM 中通过 dependencyManagement 统一管理 Spring Boot 3.3.x 和 Spring Cloud 2024.0.x（Leyton）的版本
 4. THE OrderCore SHALL 在父 POM 中配置 Java 21 作为编译和运行环境
 5. THE OrderCore SHALL 创建以下顶层模块目录：common、bootstrap、interface、application、domain、infrastructure
@@ -48,7 +48,7 @@
 1. THE OrderCore SHALL 创建 common 模块，其 packaging 类型为 jar
 2. THE OrderCore SHALL 在 common 模块中定义异常体系，包括基础异常类、业务异常类和系统异常类
 3. THE OrderCore SHALL 在 common 模块中定义统一响应类 Result，包含 code、message、data 字段
-4. THE OrderCore SHALL 在 common 模块中创建以下包结构：com.catface.common.exception、com.catface.common.dto、com.catface.common.constant、com.catface.common.util
+4. THE OrderCore SHALL 在 common 模块中创建以下包结构：com.demo.ordercore.common.exception、com.demo.ordercore.common.dto、com.demo.ordercore.common.constant、com.demo.ordercore.common.util
 5. WHEN 执行 mvn clean compile 命令时 THEN THE OrderCore SHALL 成功编译 common 模块
 
 ### 需求 3：接口层模块
@@ -119,7 +119,7 @@
 1. THE OrderCore SHALL 创建 bootstrap 模块，其 packaging 类型为 jar
 2. THE OrderCore SHALL 在 bootstrap 模块中添加 Spring Boot Starter Web 依赖
 3. THE OrderCore SHALL 在 bootstrap 模块中依赖 http、consumer、application-impl、domain-impl、mysql-impl、redis-impl、sqs-impl 和 common 模块
-4. THE OrderCore SHALL 在 bootstrap 模块的 com.catface.bootstrap 包下创建 Spring Boot 主启动类，使用 @SpringBootApplication 注解
+4. THE OrderCore SHALL 在 bootstrap 模块的 com.demo.ordercore.bootstrap 包下创建 Spring Boot 主启动类，使用 @SpringBootApplication 注解
 5. THE OrderCore SHALL 配置 bootstrap 模块使用 Spring Boot Maven Plugin 打包为可执行 JAR
 6. WHEN 执行 mvn clean compile 命令时 THEN THE OrderCore SHALL 成功编译 bootstrap 模块
 7. WHEN 执行 mvn clean package 命令时 THEN THE OrderCore SHALL 在 bootstrap/target 目录下生成可执行 JAR 文件
@@ -135,10 +135,10 @@
 2. THE OrderCore SHALL 在父 POM 中添加 logstash-logback-encoder 依赖用于 JSON 日志输出
 3. THE OrderCore SHALL 在 bootstrap 模块的 resources 目录下创建 logback-spring.xml 配置文件
 4. WHEN 应用使用 --spring.profiles.active=local 参数启动时 THEN THE OrderCore SHALL 输出彩色格式日志到控制台
-5. WHEN 应用使用 --spring.profiles.active=local 参数启动并访问任意端点时 THEN THE OrderCore SHALL 在控制台输出包含 com.catface 包的 DEBUG 级别日志
+5. WHEN 应用使用 --spring.profiles.active=local 参数启动并访问任意端点时 THEN THE OrderCore SHALL 在控制台输出包含 com.demo 包的 DEBUG 级别日志
 6. WHEN 应用使用 --spring.profiles.active=dev 参数启动时 THEN THE OrderCore SHALL 在 logs 目录下创建 application.log 文件
 7. WHEN 应用使用 --spring.profiles.active=dev 参数启动并访问任意端点时 THEN THE OrderCore SHALL 在 application.log 文件中输出 JSON 格式日志，包含 timestamp、level、thread、logger、traceId、spanId、message 字段
-8. WHEN 应用使用 --spring.profiles.active=prod 参数启动并访问任意端点时 THEN THE OrderCore SHALL 在 application.log 文件中输出 JSON 格式日志，com.catface 包使用 INFO 级别
+8. WHEN 应用使用 --spring.profiles.active=prod 参数启动并访问任意端点时 THEN THE OrderCore SHALL 在 application.log 文件中输出 JSON 格式日志，com.demo 包使用 INFO 级别
 9. WHEN 应用运行过程中产生 ERROR 级别日志时 THEN THE OrderCore SHALL 在 logs 目录下创建 error.log 文件并记录错误日志
 10. WHEN 应用使用 --spring.profiles.active=prod 参数启动时 THEN THE OrderCore SHALL 在 logback-spring.xml 中配置 AsyncAppender
 

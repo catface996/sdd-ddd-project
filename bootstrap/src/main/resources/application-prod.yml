@@ -1,0 +1,10 @@
+logging:
+  level:
+    root: INFO
+    com.demo: INFO
+
+# 链路追踪采样率调整（生产环境可降低采样率）
+management:
+  tracing:
+    sampling:
+      probability: 0.1

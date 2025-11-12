@@ -198,41 +198,6 @@ mvn clean compile
 - 可以并行执行不同领域的测试
 - 提高 CI/CD 效率
 
-## 实践建议
-
-### 领域切分策略
-
-```
-.kiro/specs/
-├── domain/              # 领域层 Spec
-│   ├── requirements.md
-│   ├── design.md
-│   └── tasks.md
-├── infrastructure/      # 基础设施层 Spec
-│   ├── requirements.md
-│   ├── design.md
-│   └── tasks.md
-├── application/         # 应用层 Spec
-│   ├── requirements.md
-│   ├── design.md
-│   └── tasks.md
-└── traffic/            # 接口层 Spec
-    ├── requirements.md
-    ├── design.md
-    └── tasks.md
-```
-
-### 领域级 Steering
-
-```
-.kiro/steering/
-├── 00-general/         # 通用 steering（所有领域）
-├── domain/             # 领域层专属 steering
-├── infrastructure/     # 基础设施层专属 steering
-├── application/        # 应用层专属 steering
-└── traffic/           # 接口层专属 steering
-```
-
 ## 总结
 
 按领域切分 Spec 不仅符合 DDD 的分层架构原则，更在 Spec Driven Development 的各个阶段（需求、设计、任务拆分、任务执行）都带来显著优势。这种切分方式：
@@ -244,7 +209,43 @@ mvn clean compile
 - ✅ 提升团队效率
 - ✅ 增强系统质量
 
-# 畅想 
+## 项目文档
+
+### 架构设计文档
+
+详细的项目架构设计说明，包括模块结构、技术栈选型、配置管理等。
+
+详见：[项目架构设计说明书](doc/intent/project-architecture-design.md)
+
+### 功能需求文档
+
+#### MyBatis-Plus 集成需求
+
+MyBatis-Plus 集成与 NodeEntity 实现的完整需求说明，包括业务背景、数据模型、功能需求等。
+
+详见：[MyBatis-Plus 集成需求](doc/intent/mybatis-plus-integration.md)
+
+### 最佳实践与经验总结
+
+#### 开发洞察
+
+在 GenDev（生成式开发）时代，关于编码效率与可读性平衡的深度思考。
+
+详见：[GenDev 时代的开发洞察](doc/best-practice/insights.md)
+
+#### 常见问题与解决方案
+
+在 Spec 开发过程中遇到的实际问题及应对策略，包括需求分析、设计、任务分解等各阶段的经验总结。
+
+详见：[常见问题与解决方案](doc/best-practice/problems.md)
+
+### 开发过程截图
+
+展示在 Spec 开发过程中遇到的典型场景和问题的截图，包括 Kiro 的自动化行为和常见问题示例。
+
+详见：[开发过程截图](doc/imgs/screenshots.md)
+
+## 畅想 
 - 是否可以建立一个评分体系，分别对需求，设计，任务分解评分
 - 如果设计这样一个体系，应该从哪些维度设计，例如：规范，业务描述是否清晰？
 - 是扣分制，还是加分制？

@@ -1,0 +1,30 @@
+# Staging environment configuration
+
+spring:
+  # DataSource configuration (staging environment)
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://staging-db-host:3306/order_service?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${SPRING_DATASOURCE_USERNAME:staging_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:staging_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# Server configuration
+server:
+  port: 8080
+
+# Logging configuration (JSON format to file)
+logging:
+  level:
+    root: INFO
+    com.catface.orderservice: DEBUG
+  file:
+    name: logs/order-service.json
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+# Actuator endpoints (limited exposure for staging)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info,metrics

@@ -1,0 +1,30 @@
+# Test environment configuration
+
+spring:
+  # DataSource configuration (test environment)
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://test-db-host:3306/order_service?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${SPRING_DATASOURCE_USERNAME:test_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:test_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# Server configuration
+server:
+  port: 8080
+
+# Logging configuration (JSON format to file)
+logging:
+  level:
+    root: INFO
+    com.catface.orderservice: DEBUG
+  file:
+    name: logs/order-service.json
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+# Actuator endpoints (expose all for testing)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

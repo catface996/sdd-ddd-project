@@ -1,0 +1,75 @@
+spring:
+  application:
+    name: order-service
+  
+  # Default active profile
+  profiles:
+    active: local
+  
+  # Lifecycle configuration
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  
+  # DataSource configuration with environment variable placeholders
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:-jdbc:mysql://localhost:3306/order_service?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${SPRING_DATASOURCE_USERNAME:-root}
+    password: ${SPRING_DATASOURCE_PASSWORD:-password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  # Disable DataSource auto-configuration for now (will be enabled when database is ready)
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+
+# Server configuration
+server:
+  port: 8080
+  # Graceful shutdown configuration
+  shutdown: graceful
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    com.catface.orderservice: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+# Tracing configuration
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  
+  # Actuator endpoints configuration
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info,metrics
+  
+  # Prometheus metrics export configuration
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  
+  # Health endpoint configuration
+  endpoint:
+    health:
+      show-details: always
+  
+  # Info endpoint configuration
+  info:
+    env:
+      enabled: true
+
+# Application info configuration
+info:
+  app:
+    name: Order Service
+    version: 1.0.0-SNAPSHOT
+    description: Order management service based on DDD architecture

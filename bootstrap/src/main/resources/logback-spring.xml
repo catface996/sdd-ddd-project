@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 定义日志输出目录 -->
+    <property name="LOG_PATH" value="logs"/>
+    <property name="APP_NAME" value="order-service"/>
+
+    <!-- 控制台输出 Appender（默认格式，用于 local profile） -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [traceId=%X{traceId:-}, spanId=%X{spanId:-}] - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- JSON 格式文件输出 Appender（用于 dev/test/staging/prod profile） -->
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}.json</file>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <!-- 自定义字段 -->
+            <customFields>{"app":"${APP_NAME}"}</customFields>
+            <!-- 包含以下字段：timestamp, level, thread, logger, traceId, spanId, message, exception -->
+            <includeMdcKeyName>traceId</includeMdcKeyName>
+            <includeMdcKeyName>spanId</includeMdcKeyName>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按日期滚动 -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}.%d{yyyy-MM-dd}.json</fileNamePattern>
+            <!-- 保留 30 天 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 异步 JSON 文件输出 Appender（用于 prod profile） -->
+    <appender name="ASYNC_JSON_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="JSON_FILE"/>
+    </appender>
+
+    <!-- local profile：控制台输出，默认格式 -->
+    <springProfile name="local">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <!-- com.catface 包使用 DEBUG 级别 -->
+        <logger name="com.catface" level="DEBUG"/>
+    </springProfile>
+
+    <!-- dev profile：文件输出，JSON 格式 -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="JSON_FILE"/>
+        </root>
+        <!-- com.catface 包使用 DEBUG 级别 -->
+        <logger name="com.catface" level="DEBUG"/>
+    </springProfile>
+
+    <!-- test profile：文件输出，JSON 格式 -->
+    <springProfile name="test">
+        <root level="INFO">
+            <appender-ref ref="JSON_FILE"/>
+        </root>
+        <!-- com.catface 包使用 DEBUG 级别 -->
+        <logger name="com.catface" level="DEBUG"/>
+    </springProfile>
+
+    <!-- staging profile：文件输出，JSON 格式 -->
+    <springProfile name="staging">
+        <root level="INFO">
+            <appender-ref ref="JSON_FILE"/>
+        </root>
+        <!-- com.catface 包使用 DEBUG 级别 -->
+        <logger name="com.catface" level="DEBUG"/>
+    </springProfile>
+
+    <!-- prod profile：异步文件输出，JSON 格式，所有包使用 INFO 级别 -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="ASYNC_JSON_FILE"/>
+        </root>
+        <!-- prod 环境所有包都使用 INFO 级别 -->
+        <logger name="com.catface" level="INFO"/>
+    </springProfile>
+
+</configuration>

@@ -33,56 +33,170 @@
 
 ```
 project-root/
-├── common/                              # 公共模块（工具类、通用异常、常量）
+├── pom.xml                              # 父 POM（packaging=pom，聚合所有顶层模块）
 │
-├── bootstrap/                           # 启动模块
+├── common/                              # 公共模块（Maven Module，packaging=jar）
+│   └── pom.xml
 │
-├── interface/                           # 接口层
-│   ├── http/                            # 提供 HTTP API
-│   └── consumer/                        # 消费消息队列
+├── bootstrap/                           # 启动模块（Maven Module，packaging=jar）
+│   └── pom.xml
 │
-├── application/                         # 应用层
-│   ├── application-api/                 # 应用服务接口定义
-│   └── application-impl/                # 应用服务实现
+├── interface/                           # 接口层（Maven Module，packaging=pom，聚合子模块）
+│   ├── pom.xml
+│   ├── interface-http/                  # HTTP 接口模块（Maven Module，packaging=jar）
+│   │   └── pom.xml
+│   └── interface-consumer/              # 消息消费者模块（Maven Module，packaging=jar）
+│       └── pom.xml
 │
-├── domain/                              # 领域层
-│   ├── domain-api/                      # 领域模型、聚合根、仓储接口定义
-│   └── domain-impl/                     # 领域逻辑实现
+├── application/                         # 应用层（Maven Module，packaging=pom，聚合子模块）
+│   ├── pom.xml
+│   ├── application-api/                 # 应用服务接口（Maven Module，packaging=jar）
+│   │   └── pom.xml
+│   └── application-impl/                # 应用服务实现（Maven Module，packaging=jar）
+│       └── pom.xml
 │
-└── infrastructure/                      # 基础设施层
-    ├── repository/
-    │   ├── repository-api/              # 仓储接口定义
-    │   └── mysql-impl/                  # 基于 MyBatis-Plus 的实现
+├── domain/                              # 领域层（Maven Module，packaging=pom，聚合子模块）
+│   ├── pom.xml
+│   ├── domain-api/                      # 领域模型定义（Maven Module，packaging=jar）
+│   │   └── pom.xml
+│   └── domain-impl/                     # 领域逻辑实现（Maven Module，packaging=jar）
+│       └── pom.xml
+│
+└── infrastructure/                      # 基础设施层（Maven Module，packaging=pom，聚合子模块）
+    ├── pom.xml
+    ├── repository/                      # 仓储层（Maven Module，packaging=pom，聚合子模块）
+    │   ├── pom.xml
+    │   ├── repository-api/              # 仓储接口（Maven Module，packaging=jar）
+    │   │   └── pom.xml
+    │   └── mysql-impl/                  # MySQL 实现（Maven Module，packaging=jar）
+    │       └── pom.xml
     │
-    ├── cache/
-    │   ├── cache-api/                   # 缓存接口定义
-    │   └── redis-impl/                  # 基于 Lettuce（Spring Data Redis）的实现
+    ├── cache/                           # 缓存层（Maven Module，packaging=pom，聚合子模块）
+    │   ├── pom.xml
+    │   ├── cache-api/                   # 缓存接口（Maven Module，packaging=jar）
+    │   │   └── pom.xml
+    │   └── redis-impl/                  # Redis 实现（Maven Module，packaging=jar）
+    │       └── pom.xml
     │
-    └── mq/
-        ├── mq-api/                      # 消息队列接口定义
-        └── sqs-impl/                    # 基于 AWS SQS 的实现
+    └── mq/                              # 消息队列层（Maven Module，packaging=pom，聚合子模块）
+        ├── pom.xml
+        ├── mq-api/                      # 消息队列接口（Maven Module，packaging=jar）
+        │   └── pom.xml
+        └── sqs-impl/                    # SQS 实现（Maven Module，packaging=jar）
+            └── pom.xml
 ```
+
+### 3.2 模块组织说明
+
+**POM 聚合模块 vs JAR 代码模块**：
+
+| 模块类型 | 打包方式 | 说明 | 示例 |
+|---------|---------|------|------|
+| **父 POM** | `pom` | 项目根 POM，管理依赖版本和聚合顶层模块 | `order-service-parent` |
+| **聚合模块** | `pom` | 用于聚合子模块，体现 DDD 分层结构 | `interface`、`application`、`domain`、`infrastructure`、`repository`、`cache`、`mq` |
+| **代码模块** | `jar` | 包含实际代码的模块 | `common`、`bootstrap`、`interface-http`、`application-api` 等 |
+
+**父 POM 的 modules 配置**：
+```xml
+<modules>
+    <module>common</module>
+    <module>interface</module>
+    <module>application</module>
+    <module>domain</module>
+    <module>infrastructure</module>
+    <module>bootstrap</module>
+</modules>
+```
+
+**聚合模块示例（domain/pom.xml）**：
+```xml
+<packaging>pom</packaging>
+<modules>
+    <module>domain-api</module>
+    <module>domain-impl</module>
+</modules>
+```
+
+### 3.3 设计优势
+
+**采用 POM 聚合模块的优势**：
+
+1. **父 POM 简洁**：只需列出 6 个顶层模块，而不是 14 个子模块
+2. **分层清晰**：Maven 模块结构与 DDD 分层完全对应
+3. **分层构建**：可以单独构建某一层（如 `mvn clean install -pl domain`）
+4. **依赖管理**：可以在层级 POM 中统一管理该层的依赖（如需要）
+5. **扩展性好**：未来添加新模块时，只需修改对应层的 POM
+6. **结构规范**：清晰的层次结构便于团队理解和维护
 
 ---
 
 ## 四、模块职责说明
 
-| 层级 | 模块 | 职责描述 |
-|------|------|----------|
-| **通用层** | `common` | 提供项目通用工具类、枚举、异常定义、通用DTO等。 |
-| **启动层** | `bootstrap` | 系统启动入口，负责加载配置、装配依赖、启动Spring上下文。 |
-| **接口层** | `interface/http` | 处理外部HTTP请求，进行参数校验与输入输出转换。 |
-|  | `interface/consumer` | 接收并处理来自消息队列的事件或异步任务。 |
-| **应用层** | `application-api` | 定义应用服务接口、DTO、Command、Query对象。 |
-|  | `application-impl` | 实现业务用例编排，协调领域层完成业务逻辑。 |
-| **领域层** | `domain-api` | 定义领域模型、聚合、实体、值对象、仓储接口、领域事件。 |
-|  | `domain-impl` | 实现领域服务逻辑，封装核心业务规则。 |
-| **基础设施层** | `repository-api` | 定义数据持久化抽象接口。 |
-|  | `mysql-impl` | 基于 MyBatis-Plus 的 MySQL 实现。 |
-|  | `cache-api` | 定义缓存访问接口。 |
-|  | `redis-impl` | 基于 Lettuce（Spring Data Redis）的 Redis 实现。 |
-|  | `mq-api` | 定义消息通信抽象接口。 |
-|  | `sqs-impl` | 基于 AWS SQS 的消息实现。 |
+| 层级 | 模块 | 职责描述 | 打包方式 | 作为二方包 |
+|------|------|----------|---------|-----------|
+| **通用层** | `common` | 提供项目通用工具类、枚举、异常定义、通用DTO等。 | jar | 否 |
+| **启动层** | `bootstrap` | 系统启动入口，负责加载配置、装配依赖、启动Spring上下文。 | jar | 否 |
+| **接口层** | `interface/http` | 处理外部HTTP请求，进行参数校验与输入输出转换。 | jar | 否 |
+|  | `interface/consumer` | 接收并处理来自消息队列的事件或异步任务。 | jar | 否 |
+| **应用层** | `application-api` | 定义应用服务接口、DTO、Command、Query对象。 | jar | 否 |
+|  | `application-impl` | 实现业务用例编排，协调领域层完成业务逻辑。 | jar | 否 |
+| **领域层** | `domain-api` | 定义领域模型、聚合、实体、值对象、仓储接口、领域事件。 | jar | 否 |
+|  | `domain-impl` | 实现领域服务逻辑，封装核心业务规则。 | jar | 否 |
+| **基础设施层** | `repository-api` | 定义数据持久化抽象接口。 | jar | 否 |
+|  | `mysql-impl` | 基于 MyBatis-Plus 的 MySQL 实现。 | jar | 否 |
+|  | `cache-api` | 定义缓存访问接口。 | jar | 否 |
+|  | `redis-impl` | 基于 Lettuce（Spring Data Redis）的 Redis 实现。 | jar | 否 |
+|  | `mq-api` | 定义消息通信抽象接口。 | jar | 否 |
+|  | `sqs-impl` | 基于 AWS SQS 的消息实现。 | jar | 否 |
+
+### 4.1 打包方式说明
+
+**POM 打包（`<packaging>pom</packaging>`）**：
+- 仅用于父工程（`order-service-parent`）
+- 不包含实际代码，只用于管理子模块和依赖版本
+- 负责聚合所有子模块，统一构建
+
+**JAR 打包（`<packaging>jar</packaging>`）**：
+- 用于所有包含实际代码的模块
+- 在当前项目内部，模块之间通过 Maven 多模块机制直接依赖，无需 install
+- 只有 `bootstrap` 模块最终打包成可执行 JAR（使用 Spring Boot Maven Plugin）
+
+### 4.2 二方包策略说明
+
+**当前项目场景**：
+- 本项目是一个单体应用，所有模块仅在当前项目内部使用
+- **所有模块都不需要作为二方包提供给其他项目**
+- 模块之间的依赖通过 Maven 多模块机制在编译时解析，无需 install 到本地仓库
+
+**如果未来需要提供二方包**：
+
+当某些模块需要被其他项目依赖时，可以考虑将以下模块发布为二方包：
+
+| 模块类型 | 可能作为二方包的模块 | 使用场景 |
+|---------|-------------------|---------|
+| **通用模块** | `common` | 其他项目需要复用通用工具类、异常定义等 |
+| **API 模块** | `application-api`<br>`domain-api`<br>`repository-api`<br>`cache-api`<br>`mq-api` | 其他项目需要调用本服务的接口或复用领域模型 |
+
+**不应作为二方包的模块**：
+- 实现模块（`*-impl`）：包含具体实现细节，不应暴露给外部
+- 接口层模块（`interface/*`）：与具体技术实现耦合，不应暴露给外部
+- 启动模块（`bootstrap`）：仅用于启动应用，不应被其他项目依赖
+
+### 4.3 模块依赖原则
+
+**当前项目内部依赖**：
+- 所有模块在同一个 Maven 多模块项目中
+- 通过在 `pom.xml` 中声明 `<dependency>` 直接依赖其他模块
+- Maven 在构建时自动解析模块间的依赖关系
+- 无需执行 `mvn install` 即可完成构建
+
+**依赖方向**：
+- 外层依赖内层，内层不依赖外层
+- 实现模块依赖 API 模块，API 模块不依赖实现模块
+- Bootstrap 模块依赖所有需要的实现模块，完成最终组装
+
+**构建顺序**：
+Maven 根据模块间的依赖关系自动确定构建顺序，确保被依赖的模块先构建。
 
 ---
 
@@ -205,31 +319,44 @@ project-root/
 
 #### 10.4.1 环境配置对照表
 
-| 环境 | Profile | 输出目标 | 日志格式 | com.catface 包日志级别 | 其他包日志级别 | 说明 |
-|------|---------|---------|---------|----------------------|--------------|------|
-| **本地开发** | local | 控制台 | 默认格式（带颜色） | DEBUG | INFO | 便于本地开发调试 |
-| **开发环境** | dev | 文件 | JSON | DEBUG | INFO | 便于日志收集和分析 |
-| **测试环境** | test | 文件 | JSON | DEBUG | INFO | 与开发环境保持一致 |
-| **预发布环境** | staging | 文件 | JSON | DEBUG | INFO | 与开发环境保持一致 |
-| **生产环境** | prod | 文件 | JSON | INFO | INFO | 减少日志量，提高性能 |
+| 环境 | Profile | 输出目标 | 日志格式 | 项目包日志级别 | 框架包日志级别 | 说明 |
+|------|---------|---------|---------|--------------|--------------|------|
+| **本地开发** | local | 控制台 | 默认格式（带颜色） | DEBUG | WARN | 便于本地开发调试，减少框架日志干扰 |
+| **开发环境** | dev | 文件 | JSON | DEBUG | WARN | 便于日志收集和分析 |
+| **测试环境** | test | 文件 | JSON | DEBUG | WARN | 与开发环境保持一致 |
+| **预发布环境** | staging | 文件 | JSON | INFO | WARN | 接近生产环境配置 |
+| **生产环境** | prod | 文件 | JSON | INFO | WARN | 减少日志量，提高性能 |
+
+**日志级别说明**：
+- **项目包**：指项目代码所在的包（如 `com.catface.orderservice`）
+  - 开发/测试环境使用 DEBUG 级别，便于查看详细的业务逻辑执行过程
+  - 预发布/生产环境使用 INFO 级别，记录关键业务操作和状态变化
+- **框架包**：指第三方框架和库的包（如 `org.springframework`、`com.baomidou`、`com.amazonaws` 等）
+  - 统一使用 WARN 级别，只记录警告和错误信息
+  - 避免框架的 INFO 日志过多造成干扰和存储浪费
 
 #### 10.4.2 配置说明
 
 **Local 环境（本地开发）**：
 - 输出到控制台，使用 Spring Boot 默认的彩色日志格式
 - 便于开发人员在 IDE 中直接查看和调试
-- com.catface 包下的代码使用 DEBUG 级别，方便查看详细的业务逻辑执行过程
-- 第三方库和框架使用 INFO 级别，减少无关日志干扰
+- 项目包（`com.catface.orderservice`）使用 DEBUG 级别，方便查看详细的业务逻辑执行过程
+- 框架包（Spring、MyBatis-Plus、AWS SDK 等）使用 WARN 级别，只显示警告和错误，减少无关日志干扰
 
-**Dev/Test/Staging 环境（非生产环境）**：
+**Dev/Test 环境（开发测试环境）**：
 - 输出到日志文件，不输出到控制台
 - 使用 JSON 格式，便于日志收集系统（如 ELK、Loki）解析和索引
-- 保持与 local 环境相同的日志级别配置，确保问题可追溯
+- 项目包使用 DEBUG 级别，框架包使用 WARN 级别，确保问题可追溯
+- 日志文件按日期滚动，保留最近 30 天的日志
+
+**Staging 环境（预发布环境）**：
+- 输出到日志文件，使用 JSON 格式
+- 项目包使用 INFO 级别，框架包使用 WARN 级别，接近生产环境配置
 - 日志文件按日期滚动，保留最近 30 天的日志
 
 **Prod 环境（生产环境）**：
 - 仅输出到日志文件，使用 JSON 格式
-- 所有包统一使用 INFO 级别，减少日志量和 I/O 开销
+- 项目包使用 INFO 级别，框架包使用 WARN 级别，减少日志量和 I/O 开销
 - 日志文件按日期和大小滚动，保留最近 90 天的日志
 - 关键业务操作和异常必须记录，便于生产问题排查
 
@@ -258,6 +385,37 @@ logs/
 4. 确保所有环境的日志都包含 traceId 和 spanId 字段
 5. 生产环境必须配置异步日志输出（AsyncAppender），避免影响应用性能
 6. 错误日志（ERROR 级别）必须单独输出到 error.log 文件，便于快速定位问题
+
+### 10.4.5 日志配置原则
+
+**核心原则：日志相关配置应在 logback-spring.xml 中进行，避免在 application.yml 中配置**
+
+**理由**：
+- Logback 配置文件提供了更强大和灵活的配置能力
+- 便于统一管理日志输出格式、Appender、滚动策略等
+- 避免配置分散在多个文件中，降低维护成本
+- Logback 的 `<springProfile>` 特性可以很好地支持多环境配置
+
+**允许在 application.yml 中配置的内容**：
+- 仅允许配置 `spring.profiles.active` 用于激活环境
+- 其他所有日志相关配置（日志级别、输出格式、文件路径、滚动策略等）都应在 `logback-spring.xml` 中配置
+
+**禁止在 application.yml 中配置的内容**：
+- ❌ `logging.level.*`：日志级别配置
+- ❌ `logging.pattern.*`：日志输出格式配置
+- ❌ `logging.file.*`：日志文件路径配置
+- ❌ `logging.logback.*`：Logback 特定配置
+
+**实现要求**：
+- 在 `logback-spring.xml` 中使用 `<springProfile>` 标签实现多环境差异化配置
+- Local 环境使用控制台输出，其他环境使用文件输出
+- 非 Local 环境使用 JSON 格式输出（通过 LogstashEncoder）
+- Prod 环境使用异步 Appender 提高性能
+- 所有日志级别配置都在 `logback-spring.xml` 中通过 `<logger>` 和 `<root>` 标签管理
+- **必须区分不同 package 的日志级别**：
+  - 项目包（`com.catface.orderservice`）：开发/测试环境使用 DEBUG，预发布/生产环境使用 INFO
+  - 框架包（如 `org.springframework`、`com.baomidou.mybatisplus`、`com.amazonaws` 等）：所有环境统一使用 WARN 级别
+  - 特殊需求的包可以单独配置（如调试时临时调整某个框架的日志级别为 DEBUG）
 
 ---
 

@@ -211,39 +211,141 @@ mvn clean compile
 
 ## 项目文档
 
-### 架构设计文档
+### 01 - 客户调研
+
+#### AIDLC 客户调研问卷
+
+了解客户需求和痛点的调研问卷，用于收集项目初期的需求信息。
+
+详见：[AIDLC 客户调研问卷](doc/01-questionnaire/AIDLC客户调研问卷.md)
+
+---
+
+### 02 - 需求与意图
+
+#### 项目蓝图
+
+AIOps 系统的原始需求文档，包含项目概述、核心功能需求、非功能性需求、技术约束等完整内容。
+
+详见：[AIOps 系统原始需求文档（Blueprint）](doc/02-intent/blueprint.md)
+
+#### 功能特性列表
+
+从用户价值角度拆分的功能特性列表，每个特性代表一个可独立交付的最小价值单元。
+
+详见：[功能特性列表（Feature List）](doc/02-intent/feature-list.md)
+
+#### 术语表
+
+项目中使用的核心概念、技术术语和业务术语的定义和说明。
+
+详见：[术语表（Glossary）](doc/02-intent/glossy.md)
+
+#### 初始化后端项目
+
+##### 项目架构设计
 
 详细的项目架构设计说明，包括模块结构、技术栈选型、配置管理等。
 
-详见：[项目架构设计说明书](doc/intent/project-architecture-design.md)
+详见：[项目架构设计说明书](doc/02-intent/01-init-backend/1-project-architecture-design.md)
 
-### 功能需求文档
-
-#### MyBatis-Plus 集成需求
+##### MyBatis-Plus 集成需求
 
 MyBatis-Plus 集成与 NodeEntity 实现的完整需求说明，包括业务背景、数据模型、功能需求等。
 
-详见：[MyBatis-Plus 集成需求](doc/intent/mybatis-plus-integration.md)
+详见：[MyBatis-Plus 集成需求](doc/02-intent/01-init-backend/2-mybatis-plus-integration.md)
 
-### 最佳实践与经验总结
+#### 功能特性详细文档
+
+每个功能特性的详细说明，包括用户故事、功能价值、核心功能、验收标准等。
+
+- [F01: 创建和管理 IT 资源](doc/02-intent/feature/F01-创建和管理IT资源.md)
+- [F02: 建立资源间的拓扑关系](doc/02-intent/feature/F02-建立资源间的拓扑关系.md)
+- [F03: 可视化查看拓扑图](doc/02-intent/feature/F03-可视化查看拓扑图.md)
+- [F04: 在拓扑图上进行交互操作](doc/02-intent/feature/F04-在拓扑图上进行交互操作.md)
+- [F05: 配置和管理 Agent](doc/02-intent/feature/F05-配置和管理Agent.md)
+- [F06: 将 Agent 关联到资源节点](doc/02-intent/feature/F06-将Agent关联到资源节点.md)
+- [F07: 手动执行 Agent 任务](doc/02-intent/feature/F07-手动执行Agent任务.md)
+- [F08: 查看 Agent 执行结果和报告](doc/02-intent/feature/F08-查看Agent执行结果和报告.md)
+- [F09: 配置 LLM 服务](doc/02-intent/feature/F09-配置LLM服务.md)
+- [F10: 用户登录和身份认证](doc/02-intent/feature/F10-用户登录和身份认证.md)
+- [F11: 管理资源的访问权限](doc/02-intent/feature/F11-管理资源的访问权限.md)
+- [F12: 通过 Chatbot 查询资源信息](doc/02-intent/feature/F12-通过Chatbot查询资源信息.md)
+- [F13: 通过 Chatbot 执行临时任务](doc/02-intent/feature/F13-通过Chatbot执行临时任务.md)
+- [F14: 定时自动执行 Agent 任务](doc/02-intent/feature/F14-定时自动执行Agent任务.md)
+- [F15: 基于事件触发 Agent 任务](doc/02-intent/feature/F15-基于事件触发Agent任务.md)
+- [F16: 自定义报告模板](doc/02-intent/feature/F16-自定义报告模板.md)
+- [F17: 管理提示词模板](doc/02-intent/feature/F17-管理提示词模板.md)
+- [F18: 集成监控系统数据](doc/02-intent/feature/F18-集成监控系统数据.md)
+- [F19: 集成 CMDB 系统数据](doc/02-intent/feature/F19-集成CMDB系统数据.md)
+- [F20: 配置告警规则](doc/02-intent/feature/F20-配置告警规则.md)
+- [F21: 接收和处理外部告警](doc/02-intent/feature/F21-接收和处理外部告警.md)
+- [F22: 配置多种通知渠道](doc/02-intent/feature/F22-配置多种通知渠道.md)
+- [F23: 导出拓扑图和报告](doc/02-intent/feature/F23-导出拓扑图和报告.md)
+- [F24: 分析资源故障的影响范围](doc/02-intent/feature/F24-分析资源故障的影响范围.md)
+- [F25: 追踪故障的根本原因](doc/02-intent/feature/F25-追踪故障的根本原因.md)
+- [F26: 预测资源使用趋势](doc/02-intent/feature/F26-预测资源使用趋势.md)
+- [F27: 编排多个 Agent 协作](doc/02-intent/feature/F27-编排多个Agent协作.md)
+- [F28: 多租户数据隔离](doc/02-intent/feature/F28-多租户数据隔离.md)
+- [F29: 移动端访问和操作](doc/02-intent/feature/F29-移动端访问和操作.md)
+
+功能特性目录说明：[Feature 文档目录](doc/02-intent/feature/README.md)
+
+---
+
+### 03 - 分析报告
+
+#### 功能相似度分析报告
+
+四个分支（001-004）的功能相似度分析，包括 Maven 模块结构对比、技术栈对比、实现功能对比等。
+
+详见：[功能相似度分析报告](doc/03-analysis/functional_similarity_report.md)
+
+---
+
+### 04 - 评分标准
+
+#### 设计评分标准
+
+设计文档的评分标准和质量检查清单。
+
+详见：[设计评分标准](doc/04-scoring/design-scoring-criteria.md)
+
+#### 需求评分标准
+
+需求文档的评分标准和质量检查清单。
+
+详见：[需求评分标准](doc/04-scoring/requirements-scoring-criteria.md)
+
+#### 任务规划评分标准
+
+任务拆分和规划的评分标准和质量检查清单。
+
+详见：[任务规划评分标准](doc/04-scoring/tasks-planning-scoring-criteria.md)
+
+---
+
+### 05 - 最佳实践与经验总结
 
 #### 开发洞察
 
 在 GenDev（生成式开发）时代，关于编码效率与可读性平衡的深度思考。
 
-详见：[GenDev 时代的开发洞察](doc/best-practice/insights.md)
+详见：[GenDev 时代的开发洞察](doc/05-best-practice/insights.md)
 
 #### 常见问题与解决方案
 
 在 Spec 开发过程中遇到的实际问题及应对策略，包括需求分析、设计、任务分解等各阶段的经验总结。
 
-详见：[常见问题与解决方案](doc/best-practice/problems.md)
+详见：[常见问题与解决方案](doc/05-best-practice/problems.md)
 
-### 开发过程截图
+---
+
+### 99 - 开发过程截图
 
 展示在 Spec 开发过程中遇到的典型场景和问题的截图，包括 Kiro 的自动化行为和常见问题示例。
 
-详见：[开发过程截图](doc/imgs/screenshots.md)
+详见：[开发过程截图](doc/99-imgs/screenshots.md)
 
 ## 畅想 
 - 是否可以建立一个评分体系，分别对需求，设计，任务分解评分

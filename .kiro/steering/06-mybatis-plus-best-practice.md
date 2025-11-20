@@ -1,3 +1,7 @@
+---
+inclusion: manual
+---
+
 # MyBatis-Plus 最佳实践指南
 
 ## 为什么选择 MyBatis-Plus

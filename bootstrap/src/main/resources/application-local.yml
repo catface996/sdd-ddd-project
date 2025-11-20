@@ -1,0 +1,23 @@
+# Local 环境配置
+
+spring:
+  # 数据源配置
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/order_service_local?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    
+  # Redis 配置
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+
+# AWS SQS 配置
+aws:
+  sqs:
+    region: ${AWS_REGION:us-east-1}
+    queue-url: ${SQS_QUEUE_URL:http://localhost:4566/000000000000/order-service-local}

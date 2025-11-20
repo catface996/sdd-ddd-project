@@ -1,0 +1,31 @@
+# 应用配置
+spring:
+  application:
+    name: order-service
+  
+  # 默认激活的 profile
+  profiles:
+    active: local
+
+# 服务端口
+server:
+  port: 8081
+
+# Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info
+      base-path: /actuator
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      enabled: true
+    info:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true

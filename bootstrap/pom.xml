@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.catface.orderservice</groupId>
+        <artifactId>order-service-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>order-service-bootstrap</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Order Service Bootstrap</name>
+    <description>订单服务启动模块</description>
+
+    <dependencies>
+        <!-- 接口层模块 -->
+        <dependency>
+            <groupId>com.catface.orderservice</groupId>
+            <artifactId>order-service-interface-http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.catface.orderservice</groupId>
+            <artifactId>order-service-interface-consumer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- 应用层实现模块 -->
+        <dependency>
+            <groupId>com.catface.orderservice</groupId>
+            <artifactId>order-service-application-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- 领域层实现模块 -->
+        <dependency>
+            <groupId>com.catface.orderservice</groupId>
+            <artifactId>order-service-domain-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- 基础设施层实现模块 -->
+        <dependency>
+            <groupId>com.catface.orderservice</groupId>
+            <artifactId>order-service-mysql-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.catface.orderservice</groupId>
+            <artifactId>order-service-redis-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.catface.orderservice</groupId>
+            <artifactId>order-service-sqs-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- 通用模块 -->
+        <dependency>
+            <groupId>com.catface.orderservice</groupId>
+            <artifactId>order-service-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Spring Boot Starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Micrometer Tracing Bridge Brave -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
+
+        <!-- Logstash Logback Encoder -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Micrometer Registry Prometheus -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Starter Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Spring Boot Maven 插件 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
